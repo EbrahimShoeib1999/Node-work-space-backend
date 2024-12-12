@@ -7,8 +7,7 @@ const Inventory = sequelize.define("Inventory", {
     allowNull: false,
   },
   unitType: {
-    type: DataTypes.ENUM,
-    values: ["piece", "gram"],
+    type: DataTypes.ENUM("piece", "gram"),
     allowNull: false,
   },
   stockQuantity: {

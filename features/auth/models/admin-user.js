@@ -32,7 +32,6 @@ const AdminUser = sequelize.define("AdminUser", {
     allowNull: false,
     defaultValue: Roles.USER, // Default role if not specified
   }
-  
 
 });
 

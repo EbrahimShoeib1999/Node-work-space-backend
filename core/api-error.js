@@ -2,7 +2,7 @@
 
 class ApiErrorCode {
 
-    static unkwonError = 1000; // 500
+    static unknownError = 1000; // 500
 
     static validation = 1001; // 400
 

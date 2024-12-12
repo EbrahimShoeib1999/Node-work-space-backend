@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../../../core/database");
+const Client = require("../../client/models/client");
 
 const Timer = sequelize.define("Timer", {
   startTime: {
@@ -21,5 +22,6 @@ const Timer = sequelize.define("Timer", {
 }, {
   timestamps: true,
 });
+Timer.belongsTo(Client, { foreignKey: "clientId" });
 
 module.exports = Timer;
