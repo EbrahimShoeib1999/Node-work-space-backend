@@ -1,4 +1,4 @@
-const AdminUser = require("../models/AdminUser");
+const AdminUser = require("../models/admin-user");
 
 class AdminUserRepository {
   async createAdminUser(data) {

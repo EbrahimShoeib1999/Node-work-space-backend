@@ -1,4 +1,4 @@
-const AdminUserService = require("../services/AdminUserService");
+const AdminUserService = require("../service/admin-service");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { date } = require("joi");
