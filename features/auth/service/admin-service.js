@@ -14,6 +14,34 @@ class AdminUserService {
     });
   }
 
+  async login(username, password) {
+    // Check if user exists
+    const user = await AdminUserRepository.findAdminUserByUsername(username);
+    if (!user) {
+      throw new Error("Invalid username or password");
+    }
+
+    // Validate password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Invalid username or password");
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
+      process.env.JWT_SECRET, // Use a secure secret key in .env
+      { expiresIn: "1h" } // Token expires in 1 hour
+    );
+
+    return { token, user };
+  }
+
+
   async getAdminUserById(id) {
     return await AdminUserRepository.findAdminUserById(id);
   }

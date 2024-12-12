@@ -8,81 +8,41 @@ class AdminUserController {
 
   async login(req, res) {
     try {
-
-        const { error } = adminUserLoginValidationSchema.validate(req.body);
-
-        if (error) {
-            return res.status(401).json({
-                isSuccessfull: false,
-                message: "Validation error",
-                error: {
-                   errorCode : ApiErrorCode.validation,
-                   message : error.message
-                }
-              });
-        }
+      // Validate request body
+      const { error } = adminUserLoginValidationSchema.validate(req.body);
+      if (error) {
+        return res.status(401).json({
+          isSuccessfull: false,
+          message: "Validation error",
+          error: {
+            errorCode: ApiErrorCode.validation,
+            message: error.message,
+          },
+        });
+      }
 
       const { username, password } = req.body;
-  
-      // Check if user exists
-      const user = await AdminUser.findOne({ where: { username } });
-      if (!user) {
-        return res.status(401).json({
-            isSuccessfull: false,
-            message: "Invalid username or password",
-            error: {
-               errorCode : ApiErrorCode.notFound,
-               message : error.message
-            }
-          });
-      }
-  
-      // Validate password
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        return res.status(401).json({
-            isSuccessfull: false,
-            message: "Invalid username or password.",
-            error: {
-               errorCode : ApiErrorCode.notFound,
-               message : error.message
-            }
-          });
-      }
-  
-      // Generate JWT token
-      const token = jwt.sign(
-        {
-          id: user.id,
-          username: user.username,
-          role: user.role,
-        },
-        process.env.JWT_SECRET, // Use a secure secret key in .env
-        { expiresIn: "1h" } // Token expires in 1 hour
-      );
+
+      // Call the login method in the service
+      const { token, user } = await AdminUserService.login(username, password);
 
       res.status(200).json({
         isSuccessfull: true,
         message: "Login successful.",
-        date : {
-            token,
-            user
-        },
+        data: { token, user },
       });
-      
     } catch (err) {
       console.error(err);
-
       res.status(500).json({
         isSuccessfull: false,
         message: "Server error",
         error: {
-           errorCode : ApiErrorCode.unkwonError,
-           message : err.message
-        }
+          errorCode: ApiErrorCode.unknownError,
+          message: err.message,
+        },
       });
     }
-  };
+  }
 
   async create(req, res) {
 
