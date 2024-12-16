@@ -2,7 +2,6 @@ const OrderRepository = require("../repo/order-repo");
 const { Status } = require("../models/order");
 const Inventory = require("../../inventory/models/inventory");
 const { sequelize } = require("../../../core/database");
-const OrderItem = require("../models/order-item");
 
 
 class OrderService {

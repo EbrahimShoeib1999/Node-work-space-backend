@@ -1,6 +1,49 @@
 const { OrderItem } = require("../models/order-item");
+const {Op} = require("sequelize");
 
 class OrderItemRepository {
+
+
+  async getAllOrderItemsPaginated({ page = 1, limit = 10, startDate, endDate }) {
+    try {
+      const offset = (page - 1) * limit;
+
+      // Build the where clause for filtering by timestamps
+      const where = {};
+      if (startDate && endDate) {
+        where.createdAt = {
+          [Op.between]: [new Date(startDate), new Date(endDate)],
+        };
+      } else if (startDate) {
+        where.createdAt = {
+          [Op.gte]: new Date(startDate),
+        };
+      } else if (endDate) {
+        where.createdAt = {
+          [Op.lte]: new Date(endDate),
+        };
+      }
+
+      // Execute the query
+      const result = await OrderItem.findAndCountAll({
+        where,
+        offset,
+        limit,
+        order: [["createdAt", "DESC"]], // Sort by newest first
+      });
+
+      // Return the paginated result
+      return {
+        data: result.rows,
+        currentPage: page,
+        totalPages: Math.ceil(result.count / limit),
+        totalItems: result.count,
+      };
+    } catch (error) {
+      console.error("Error fetching paginated order items:", error);
+      throw new Error("Failed to fetch paginated order items");
+    }
+  }
 
   // Create a new order item
   async createOrderItem(data) {
@@ -48,6 +91,8 @@ class OrderItemRepository {
       throw new Error('Failed to delete order item');
     }
   }
+
+
 }
 
 module.exports = new OrderItemRepository();

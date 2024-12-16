@@ -181,6 +181,36 @@ class OrderItemService {
       throw new Error('Failed to update order item quantity');
     }
   }
+
+  async getAllOrderItems(options) {
+    const { page, limit, startDate, endDate } = options;
+
+    if (startDate && isNaN(Date.parse(startDate))) {
+      throw new Error('Invalid startDate format. Expected YYYY-MM-DD.');
+    }
+
+    if (endDate && isNaN(Date.parse(endDate))) {
+      throw new Error('Invalid endDate format. Expected YYYY-MM-DD.');
+    }
+
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+      throw new Error('startDate cannot be later than endDate.');
+    }
+
+    try {
+      // Fetch order items from the repository
+      return await OrderItemRepository.getAllOrderItemsPaginated({
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+        startDate,
+        endDate,
+      });
+
+    } catch (error) {
+      console.error('Error fetching paginated order items:', error);
+      throw new Error('An unexpected error occurred. Please try again later.');
+    }
+  }
 }
 
 module.exports = new OrderItemService();
