@@ -26,6 +26,9 @@ const Order = sequelize.define("Order", {
   timestamps: true,
 });
 
-Order.belongsTo(Client, { foreignKey: "clientId" });
+// Define associations in a separate function
+Order.associate = (models) => {
+  Order.belongsTo(models.Client, { foreignKey: "clientId" });
+};
 
 module.exports = { Order, Status };

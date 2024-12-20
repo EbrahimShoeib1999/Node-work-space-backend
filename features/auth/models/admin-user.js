@@ -4,7 +4,7 @@ const sequelize = require("../../../core/database");
 // Enum definitions
 const Roles = {
   ADMIN: "ADMIN",
-  MODERATOR: "MODERATOR",
+  CASHIER: "CASHIER",
   USER: "USER",
 };
 

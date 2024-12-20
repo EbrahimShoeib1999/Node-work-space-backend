@@ -22,6 +22,9 @@ const Timer = sequelize.define("Timer", {
 }, {
   timestamps: true,
 });
-Timer.belongsTo(Client, { foreignKey: "clientId" });
+
+Timer.associate = (models) => {
+  Timer.belongsTo(Client, { foreignKey: "clientId" });
+};
 
 module.exports = Timer;

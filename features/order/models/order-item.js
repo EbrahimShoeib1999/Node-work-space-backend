@@ -24,7 +24,10 @@ const OrderItem = sequelize.define("OrderItem", {
   timestamps: true,
 });
 
-OrderItem.belongsTo(Order, { foreignKey: "orderId" });
-OrderItem.belongsTo(Inventory, { foreignKey: "inventoryId" });
+OrderItem.associate = (models) => {
+  OrderItem.belongsTo(Order, { foreignKey: "orderId" });
+  OrderItem.belongsTo(Inventory, { foreignKey: "inventoryId" });
+};
+
 
 module.exports = OrderItem;

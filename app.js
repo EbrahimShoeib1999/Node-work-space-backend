@@ -7,7 +7,7 @@ const app = express();
 
 //imports for routers 
 const adminUserRouter = require("./features/auth/router/admin-router");
-
+const clientRouter = require("./features/client/router/client-router");
 
 // Middleware
 app.use(morgan("dev"));
@@ -37,6 +37,7 @@ app.use((req, res, next) => {
 
 // Routes 
 app.use("/api/admin-users", adminUserRouter);
+app.use("/api/client", clientRouter);
 
 // 404 Error handler for unknown routes
 app.use((req, res, next) => {
