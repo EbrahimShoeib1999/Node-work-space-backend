@@ -3,7 +3,7 @@ const Joi = require("joi");
 // Enum definitions for validation
 const Roles = {
   ADMIN: "ADMIN",
-  MODERATOR: "MODERATOR",
+  CASHIER: "CASHIER",
   USER: "USER",
 };
 
@@ -26,7 +26,7 @@ const adminUserValidationSchema = Joi.object({
     .valid(...Object.values(Roles))
     .required()
     .messages({
-      "any.only": "Invalid role. Must be one of ADMIN, MODERATOR, or USER.",
+      "any.only": "Invalid role. Must be one of ADMIN, CASHIER, or USER.",
       "string.empty": "Role is required.",
     })
 });

@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const AdminUserRepository = require("../repo/admin-repo");
+const {sign} = require("jsonwebtoken");
 
 class AdminUserService {
     
@@ -28,7 +29,7 @@ class AdminUserService {
     }
 
     // Generate JWT token
-    const token = jwt.sign(
+    const token = sign(
       {
         id: user.id,
         username: user.username,

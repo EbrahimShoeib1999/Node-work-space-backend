@@ -1,4 +1,4 @@
-const AdminUser = require("../models/admin-user");
+const AdminUser = require("../models/admin-user").AdminUser;
 
 class AdminUserRepository {
   async createAdminUser(data) {
@@ -15,6 +15,10 @@ class AdminUserRepository {
 
   async deleteAdminUser(id) {
     return await AdminUser.destroy({ where: { id } });
+  }
+
+  async findAdminUserByUsername(username) {
+    return await AdminUser.findOne({ where: { username } });
   }
 }
 
