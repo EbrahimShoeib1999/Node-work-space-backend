@@ -1,7 +1,7 @@
 const ClientRepository = require("../repo/client-repo");
 
 class ClientService {
-  async createClient(name, contactInfo) {
+  async createClient({name, contactInfo}) {
     return await ClientRepository.createClient({ name, contactInfo });
   }
 

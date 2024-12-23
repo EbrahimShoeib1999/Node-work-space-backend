@@ -16,6 +16,7 @@ const Client = sequelize.define("Client", {
   timestamps: true,
 });
 
+
 Client.associate = (models) => {
   Client.hasMany(models.Order, { foreignKey: "clientId" });
   Client.hasMany(models.Timer, { foreignKey: "clientId" });
