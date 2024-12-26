@@ -1,38 +1,64 @@
 'use strict';
-const {DataTypes} = require("sequelize");
+const { DataTypes } = require("sequelize");
+const { Roles } = require('../features/auth/models/admin-user'); // Updated Roles Enum
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('AdminUsers', {
+    await queryInterface.createTable('admin_users', {
       id: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
       },
       username: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       email: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEmail: true,
+        },
       },
       password: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       role: {
-        type: DataTypes.ENUM('ADMIN', 'CASHIER', 'USER'), // Define ENUM values explicitly
-      },
-      createdAt: {
+        type: Sequelize.ENUM("ADMIN", "CASHIER", "EMPLOYEE", "MANAGER"), // Updated ENUM
         allowNull: false,
-        type: Sequelize.DATE
+        defaultValue: "EMPLOYEE", // Default role
       },
-      updatedAt: {
+      balance: {
+        type: Sequelize.FLOAT,
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        defaultValue: 0, // Initial balance
+      },
+      daily_rate: {
+        type: Sequelize.FLOAT,
+        allowNull: true, // Can be null if not set
+      },
+      created_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
+      updated_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
     });
   },
+
   async down(queryInterface, Sequelize) {
+    // Drop the table and clean up ENUM
     await queryInterface.dropTable('AdminUsers');
-  }
+    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_AdminUsers_role";'); // Drop ENUM type
+  },
 };

@@ -19,10 +19,12 @@ const sequelize = new Sequelize(
   }
 );
 
+//sequelize.sync({ alter: true });
+
 // Test the connection
 sequelize
   .authenticate()
-  .then(() => console.log('Connected to PostgreSQL'))
+  .then(() => console.log('Connected to PostgresSQL'))
   .catch(err => console.error('Unable to connect to the database:', err));
 
 module.exports = sequelize;

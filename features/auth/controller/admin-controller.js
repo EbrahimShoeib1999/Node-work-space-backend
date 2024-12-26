@@ -61,14 +61,15 @@ class AdminUserController {
           });
     }
 
-    const { username,email, password, role } = req.body;
+    const { username,email, password, role,dailyRate } = req.body;
 
     try {
       const adminUser = await AdminUserService.createAdminUser(
         username,
         email,
         password,
-        role
+        role,
+        dailyRate
       );
 
       res.status(201).json({

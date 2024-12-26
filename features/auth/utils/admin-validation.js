@@ -28,7 +28,14 @@ const adminUserValidationSchema = Joi.object({
     .messages({
       "any.only": "Invalid role. Must be one of ADMIN, CASHIER, or USER.",
       "string.empty": "Role is required.",
-    })
+    }),
+  dailyRate: Joi.number()
+      .min(0) // Ensures the rate is not negative (or customize this further)
+      .optional() // Makes it optional if not provided
+      .messages({
+        "number.base": "Daily rate must be a number.",
+        "number.min": "Daily rate must be a positive number.",
+      })
 });
 
 const adminUserLoginValidationSchema = Joi.object({

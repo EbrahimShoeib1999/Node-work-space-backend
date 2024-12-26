@@ -2,13 +2,14 @@ const express = require("express");
 require("dotenv").config({ path: "./config.env" });
 const morgan = require("morgan");
 const cors = require("cors");
-
+require("./features/auth/utils/balance-updater")
 const app = express();
 
-//imports for routers 
+//imports for router
 const adminUserRouter = require("./features/auth/router/admin-router");
 const clientRouter = require("./features/client/router/client-router");
 const treasuryRouter = require("./features/treasury/router/treasury-router");
+const inventoryRouter = require("./features/inventory/router/inventory-router");
 
 // Middleware
 app.use(morgan("dev"));
@@ -40,6 +41,7 @@ app.use((req, res, next) => {
 app.use("/api/admin-users", adminUserRouter);
 app.use("/api/client", clientRouter);
 app.use("/api/treasury", treasuryRouter);
+app.use("/api/inventory", inventoryRouter);
 
 // 404 Error handler for unknown routes
 app.use((req, res, next) => {
