@@ -32,10 +32,15 @@ module.exports = {
         allowNull: false,
         comment: 'Available quantity of the inventory item in stock',
       },
-      buying_price: {
+      total_buying_price: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
-        comment: 'Price at which the inventory item was purchased',
+        comment: 'Total cost of the current stock',
+      },
+      unit_buying_price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        comment: 'Calculated unit buying price based on stock and total buying price',
       },
       selling_price_per_unit: {
         type: DataTypes.DECIMAL(10, 2),

@@ -20,10 +20,10 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       inventoryId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Inventories', // Ensure this matches the table name of the Inventory model
+          model: 'inventory', // Ensure this matches the table name of the Inventory model
           key: 'id',
         },
         onUpdate: 'CASCADE',
