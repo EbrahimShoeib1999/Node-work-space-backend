@@ -24,7 +24,6 @@ class AdminUserController {
       }
 
       const { username, password } = req.body;
-
       // Call the login method in the service
       const { token, user } = await AdminUserService.login(username, password);
 
@@ -75,7 +74,7 @@ class AdminUserController {
       res.status(201).json({
         isSuccessfull: true,
         message: "Created user successfully.",
-        date : adminUser,
+        data : adminUser,
       });
 
     } catch (error) {
@@ -96,7 +95,7 @@ class AdminUserController {
       res.status(201).json({
         isSuccessfull: true,
         message: "Got all users successfully.",
-        date : adminUsers,
+        data : adminUsers,
       });
 
     } catch (error) {
@@ -130,7 +129,7 @@ class AdminUserController {
       res.status(201).json({
         isSuccessfull: true,
         message: "Got all users successfully.",
-        date : adminUser,
+        data : adminUser,
       });
 
     } catch (error) {
@@ -164,7 +163,7 @@ class AdminUserController {
       res.status(201).json({
         isSuccessfull: true,
         message: "Deleted user successfully.",
-        date : null,
+        data : null,
       });
 
     } catch (error) {
