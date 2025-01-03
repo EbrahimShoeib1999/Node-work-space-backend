@@ -34,6 +34,7 @@ Reservation.init(
                 key: 'id',
             },
         },
+
         startTime: {
             type: DataTypes.DATE,
             allowNull: false,
