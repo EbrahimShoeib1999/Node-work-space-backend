@@ -37,7 +37,7 @@ class AdminUserService {
         role: user.role,
       },
       process.env.JWT_SECRET, // Use a secure secret key in .env
-      { expiresIn: "1h" } // Token expires in 1 hour
+      { expiresIn: "24h" } // Token expires in 1 hour
     );
 
     return { token, user };
@@ -48,12 +48,16 @@ class AdminUserService {
     return await AdminUserRepository.findAdminUserById(id);
   }
 
-  async getAllAdminUsers() {
-    return await AdminUserRepository.findAllAdminUsers();
+  async getAllAdminUsers(query) {
+    return await AdminUserRepository.findAllAdminUsers(query);
   }
 
   async deleteAdminUser(id) {
     return await AdminUserRepository.deleteAdminUser(id);
+  }
+
+  async updateAdminUser(id, update) {
+    return await AdminUserRepository.updateAdminUser(id, update);
   }
 }
 

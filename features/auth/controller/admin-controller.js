@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { date } = require("joi");
 const ApiErrorCode = require("../../../core/api-error")
-const {adminUserValidationSchema,adminUserLoginValidationSchema} = require("../utils/admin-validation")
+const {adminUserValidationSchema,adminUserLoginValidationSchema,updateAdminUserValidationSchema} = require("../utils/admin-validation")
 
 
 class AdminUserController {
@@ -90,8 +90,12 @@ class AdminUserController {
   }
 
   async getAll(req, res) {
+
     try {
-      const adminUsers = await AdminUserService.getAllAdminUsers();
+
+      const query = req.query.query;
+
+      const adminUsers = await AdminUserService.getAllAdminUsers(query);
       res.status(201).json({
         isSuccessfull: true,
         message: "Got all users successfully.",
@@ -178,6 +182,56 @@ class AdminUserController {
     }
   }
 
+  async update(req, res) {
+        const { id } = req.params; // Extract the user ID from request parameters
+        const updates = req.body; // Extract the updated fields from request body
+
+        const { error } = updateAdminUserValidationSchema.validate(updates);
+
+        if (error) {
+            return res.status(401).json({
+                isSuccessfull: false,
+                message: "Validation error",
+                error: {
+                    errorCode : ApiErrorCode.validation,
+                    message : error.message
+                }
+            });
+        }
+
+
+        try {
+            // Call the update method in the service
+            const updatedUser = await AdminUserService.updateAdminUser(id, updates);
+
+            if (!updatedUser) {
+                return res.status(404).json({
+                    isSuccessfull: false,
+                    message: "Admin user not found",
+                    error: {
+                        errorCode: ApiErrorCode.notFound,
+                        message: "The user with the specified ID does not exist.",
+                    },
+                });
+            }
+
+            res.status(200).json({
+                isSuccessfull: true,
+                message: "Updated user successfully.",
+                data: updatedUser,
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({
+                isSuccessfull: false,
+                message: "Server error",
+                error: {
+                    errorCode: ApiErrorCode.unknownError,
+                    message: error.message,
+                },
+            });
+        }
+    }
 
 }
 

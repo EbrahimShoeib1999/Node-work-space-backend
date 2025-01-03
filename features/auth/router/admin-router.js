@@ -18,4 +18,8 @@ router.get("/:id", AdminUserController.getById);
 // Delete admin user
 router.delete("/:id", AdminUserController.delete);
 
+// update admin user
+router.put("/:id", AdminUserController.update);
+
+
 module.exports = router;

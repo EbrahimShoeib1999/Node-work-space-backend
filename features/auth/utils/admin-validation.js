@@ -38,6 +38,43 @@ const adminUserValidationSchema = Joi.object({
       })
 });
 
+const updateAdminUserValidationSchema = Joi.object({
+    username: Joi.string().min(3).max(30)
+        .optional() // Makes it optional if not provided
+        .messages({
+        "string.empty": "Username is required.",
+        "string.min": "Username must be at least 3 characters long.",
+        "string.max": "Username must not exceed 30 characters.",
+    }),
+    email: Joi.string().email()
+        .optional() // Makes it optional if not provided
+        .messages({
+        "string.empty": "Email is required.",
+        "string.email": "Please provide a valid email address.",
+    }),
+    password: Joi.string().min(8)
+        .optional() // Makes it optional if not provided
+        .messages({
+        "string.empty": "Password is required.",
+        "string.min": "Password must be at least 8 characters long.",
+    }),
+    role: Joi.string()
+        .valid(...Object.values(Roles))
+        .optional() // Makes it optional if not provided
+        .messages({
+            "any.only": "Invalid role. Must be one of ADMIN, CASHIER, or USER.",
+            "string.empty": "Role is required.",
+        }),
+    dailyRate: Joi.number()
+        .min(0) // Ensures the rate is not negative (or customize this further)
+        .optional() // Makes it optional if not provided
+        .messages({
+            "number.base": "Daily rate must be a number.",
+            "number.min": "Daily rate must be a positive number.",
+        })
+});
+
+
 const adminUserLoginValidationSchema = Joi.object({
     username: Joi.string().min(3).max(30).required().messages({
       "string.empty": "Username is required.",
@@ -52,6 +89,7 @@ const adminUserLoginValidationSchema = Joi.object({
 
 module.exports = {
   adminUserValidationSchema,
+  updateAdminUserValidationSchema,
   adminUserLoginValidationSchema,
   Roles,
 };
