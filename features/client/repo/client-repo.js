@@ -16,6 +16,18 @@ class ClientRepository {
   async deleteClient(id) {
     return await Client.destroy({ where: { id } });
   }
+
+  // Add updateClient method
+  async updateClient(id, data) {
+
+     await Client.update(data, {
+      where: { id },
+    })
+
+    return Client.findByPk(id)
+
+  }
+
 }
 
 module.exports = new ClientRepository();

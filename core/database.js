@@ -19,7 +19,16 @@ const sequelize = new Sequelize(
   }
 );
 
-//sequelize.sync({ alter: true });
+// // Import models after the sequelize instance
+// const Supplier = require('../features/supplier/models/supplier');
+// const Inventory = require('../features/inventory/models/inventory');
+
+//
+// sequelize.sync({ alter: true }).then(() => {
+//     console.log('Database and models synced!');
+// }).catch(err => {
+//     console.error('Error syncing the database:', err);
+// });-
 
 // Test the connection
 sequelize

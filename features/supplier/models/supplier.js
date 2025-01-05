@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../../../core/database');
+const Inventory = require("../../inventory/models/inventory")
 
 class Supplier extends Model {}
 
@@ -62,5 +63,11 @@ Supplier.init(
         comment: 'Manages supplier details such as contact information, niche, and balance',
     }
 );
+
+// Supplier.hasMany(Inventory, {
+//     foreignKey: 'supplierId', // Reference to the supplierId field
+//     as: 'inventoryItems',     // Alias for the relation
+// });
+
 
 module.exports = Supplier;

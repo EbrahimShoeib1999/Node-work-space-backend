@@ -1,7 +1,11 @@
 'use strict';
 
+const {DataTypes} = require("sequelize");
 module.exports = {
   up: async (queryInterface, Sequelize) => {
+    // Create ENUM types before the table definition
+
+
     await queryInterface.createTable('treasuries', {
       id: {
         type: Sequelize.UUID,
@@ -67,6 +71,11 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
         comment: 'Cash available in the cashier machine after the transaction',
+      },
+      payment_method: {
+        type: Sequelize.ENUM('cash', 'visa'),
+        allowNull: false,
+        comment: 'Type of paymentMethod: cash or visa',
       },
       created_at: {
         type: Sequelize.DATE,

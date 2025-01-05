@@ -47,9 +47,13 @@ class AdminUserController {
 
   async create(req, res) {
 
+      console.log("1")
+
     const { error } = adminUserValidationSchema.validate(req.body);
 
-    if (error) {
+      console.log("2")
+
+      if (error) {
         return res.status(401).json({
             isSuccessfull: false,
             message: "Validation error",
@@ -60,9 +64,14 @@ class AdminUserController {
           });
     }
 
-    const { username,email, password, role,dailyRate } = req.body;
+      console.log("3")
 
-    try {
+
+      const { username,email, password, role,dailyRate } = req.body;
+
+      console.log("4")
+
+      try {
       const adminUser = await AdminUserService.createAdminUser(
         username,
         email,
@@ -70,6 +79,8 @@ class AdminUserController {
         role,
         dailyRate
       );
+
+      console.log("5")
 
       res.status(201).json({
         isSuccessfull: true,

@@ -30,7 +30,13 @@ const treasuryValidationSchema = Joi.object({
     description: Joi.string()
         .max(255)
         .optional()
-
+    ,
+    paymentMethod : Joi.string()
+        .valid(
+            "cash",
+            "visa"
+        )
+        .required()
 });
 
 const cashMachineValidationSchema = Joi.object({

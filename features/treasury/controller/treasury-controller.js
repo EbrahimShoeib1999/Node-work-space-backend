@@ -33,21 +33,6 @@ class TreasuryController {
         }
     }
 
-    async getLastTransaction(req, res) {
-        try {
-            const lastTransaction = await TreasuryService.getLastTransaction();
-            ResponseUtils.success(res, "Last transaction fetched successfully.", lastTransaction);
-        } catch (error) {
-            console.error('Error fetching last transaction:', error);
-            ResponseUtils.error(
-                res,
-                ApiErrorCode.unknownError,
-                error.message,
-                500
-            );
-        }
-    }
-
     async getTransactionById(req, res) {
         try {
             const { id } = req.params;
@@ -89,22 +74,6 @@ class TreasuryController {
         }
     }
 
-    async deleteTransaction(req, res) {
-        try {
-            const { id } = req.params;
-            await TreasuryService.deleteTransaction(id);
-            ResponseUtils.success(res, "Transaction deleted successfully.");
-        } catch (error) {
-            console.error('Error deleting transaction:', error);
-            ResponseUtils.error(
-                res,
-                ApiErrorCode.unknownError,
-                error.message,
-                500
-            );
-        }
-    }
-
     async cashMachineTransaction(req, res) {
         try {
             const data = req.body;
@@ -126,6 +95,28 @@ class TreasuryController {
             }
 
             ResponseUtils.success(res, "Transaction completed successfully.",transaction);
+        } catch (error) {
+            console.error('Error doing transaction on cash machine:', error);
+            ResponseUtils.error(
+                res,
+                ApiErrorCode.unknownError,
+                error.message,
+                500
+            );
+        }
+    }
+
+    async getTreasuryInfo(req, res) {
+        try {
+
+
+            const currentBalance = await TreasuryService.getCashAndTodayVisaIncome()
+            const todayAnalytic = await TreasuryService.getTodayIncomeExpensesProfit()
+
+            ResponseUtils.success(res, "Transaction completed successfully.",{
+                currentBalance,
+                todayAnalytic
+            });
         } catch (error) {
             console.error('Error doing transaction on cash machine:', error);
             ResponseUtils.error(

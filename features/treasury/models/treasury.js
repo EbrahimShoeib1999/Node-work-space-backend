@@ -69,6 +69,11 @@ Treasury.init(
             allowNull: false,
             comment: 'Cash available in the cashier machine after the transaction',
         },
+        paymentMethod: {
+            type: DataTypes.ENUM('cash', 'visa'),
+            allowNull: false,
+            comment: 'Type of paymentMethod: cash or visa',
+        },
     },
     {
         sequelize,

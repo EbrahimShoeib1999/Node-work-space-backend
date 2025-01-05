@@ -5,15 +5,19 @@ const {sign} = require("jsonwebtoken");
 class AdminUserService {
     
   async createAdminUser(username,email, password, role,dailyRate) {
-    // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
-    return await AdminUserRepository.createAdminUser({
-      username,
-      email,
-      password: hashedPassword,
-      role,
-      dailyRate,
-    });
+    try{
+      const hashedPassword = await bcrypt.hash(password, 10);
+      return await AdminUserRepository.createAdminUser({
+        username,
+        email,
+        password: hashedPassword,
+        role,
+        dailyRate,
+      });
+    }catch (e) {
+      throw new Error(e.message);
+    }
+
   }
 
   async login(username, password) {

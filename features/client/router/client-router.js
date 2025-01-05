@@ -14,6 +14,9 @@ router.get("/", ClientController.getAll);
 // Get a specific client by ID
 router.get("/:id", ClientController.getById);
 
+
+router.put("/:id", ClientController.update);
+
 // Delete a client by ID
 router.delete("/:id",  ClientController.delete);
 

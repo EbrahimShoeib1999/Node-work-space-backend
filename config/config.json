@@ -1,21 +1,21 @@
 {
   "development": {
     "username": "postgres",
-    "password": "Ilovemysonzizo2",
+    "password": "8291917Mn",
     "database": "workspace",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
-    "password": "Ilovemyson   zizo2",
+    "password": "8291917Mn",
     "database": "workspace",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
-    "password": "Ilovemysonzizo2",
+    "password": "8291917Mn",
     "database": "workspace",
     "host": "127.0.0.1",
     "dialect": "postgres"

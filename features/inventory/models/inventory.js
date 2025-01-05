@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../../../core/database');
+const Supplier = require("../../supplier/models/supplier")
 
 class Inventory extends Model {}
 
@@ -63,5 +64,11 @@ Inventory.init(
         comment: 'Manages inventory items, their suppliers, and pricing details',
     }
 );
+
+// Define the association: An inventory item belongs to a supplier
+// Inventory.belongsTo(Supplier, {
+//     foreignKey: 'supplierId', // Reference to the supplierId field
+//     as: 'supplier',           // Alias for the relation
+// });
 
 module.exports = Inventory;

@@ -1,52 +1,48 @@
 const TreasuryRepository = require("../repo/treasury-repo");
-
+const Treasury = require("../models/treasury");
 class TreasuryService {
 
     async createTransaction(data) {
-        // Get the last transaction to fetch the current state
-        const lastTransaction = await TreasuryRepository.getLastTransaction();
+        try {
+            // Fetch the latest treasury balance
+            const lastTransaction = await TreasuryRepository.getLastTransaction()
 
-        // Set the initial values based on whether we have a previous transaction or not
-        if (lastTransaction) {
-            // If it's an income transaction
-            if (data.transactionType === 'income') {
-                // Update balance and cash in machine for income
-                data.cashInMachineBefore = lastTransaction.cashInMachineAfter;
-                data.cashInMachineAfter = parseFloat(lastTransaction.cashInMachineAfter) + parseFloat(data.amount);
-                data.balanceAfterTransaction = parseFloat(lastTransaction.balanceAfterTransaction) + parseFloat(data.amount);
-            }
-            // If it's an expense transaction
-            else if (data.transactionType === 'expense') {
-                // Ensure we have enough funds in the machine to process the expense
-                const cashInMachineBefore = parseFloat(lastTransaction.cashInMachineAfter);
-                if (cashInMachineBefore >= parseFloat(data.amount)) {
-                    data.cashInMachineBefore = lastTransaction.cashInMachineAfter;
-                    data.cashInMachineAfter = cashInMachineBefore - parseFloat(data.amount);
-                    data.balanceAfterTransaction = parseFloat(lastTransaction.balanceAfterTransaction) - parseFloat(data.amount);
-                } else {
-                    throw new Error('Insufficient funds in the machine to complete the expense.');
+            const balanceAfterTransaction =
+                lastTransaction ? parseFloat(lastTransaction.balanceAfterTransaction) : 0;
+            const cashInMachineBefore =
+                lastTransaction ? parseFloat(lastTransaction.cashInMachineAfter) : 0;
+
+            let cashInMachineAfter = cashInMachineBefore;
+
+            // If the payment method is cash, update the cash in machine
+            if (data.paymentMethod === 'cash') {
+                if (data.transactionType === 'income') {
+                    cashInMachineAfter += parseFloat(data.amount);
+                } else if (data.transactionType === 'expense') {
+                    cashInMachineAfter -= parseFloat(data.amount);
                 }
             }
-        } else {
-            // For the first transaction (no previous transaction)
-            if (data.transactionType === 'income') {
-                data.cashInMachineBefore = 0;
-                data.cashInMachineAfter = parseFloat(data.amount);
-                data.balanceAfterTransaction = parseFloat(data.amount);
-            } else if (data.transactionType === 'expense') {
-                data.cashInMachineBefore = 0;
-                data.cashInMachineAfter = -parseFloat(data.amount);
-                data.balanceAfterTransaction = -parseFloat(data.amount);
-            }
+
+            // Calculate the new balance after the transaction
+            const newBalance =
+                data.transactionType === 'income'
+                    ? balanceAfterTransaction + parseFloat(data.amount)
+                    : balanceAfterTransaction - parseFloat(data.amount);
+
+            // Create the transaction
+            const transaction = await TreasuryRepository.createTransaction(
+                {
+                    ...data,
+                    balanceAfterTransaction: newBalance,
+                    cashInMachineBefore,
+                    cashInMachineAfter,
+                },
+            );
+
+            return transaction;
+        } catch (error) {
+            throw error;
         }
-
-        // Save the transaction
-        return await TreasuryRepository.createTransaction(data);
-    }
-
-
-    async getLastTransaction(){
-        return await TreasuryRepository.getLastTransaction();
     }
 
     async getTransactionById(id) {
@@ -55,10 +51,6 @@ class TreasuryService {
 
     async getAllTransactions(filters = {}) {
         return await TreasuryRepository.getAllTransactions(filters);
-    }
-
-    async deleteTransaction(id){
-        return await TreasuryRepository.deleteTransaction(id);
     }
 
     async depositCash(amount) {
@@ -96,7 +88,6 @@ class TreasuryService {
             return await TreasuryRepository.createTransaction(transactionData);
         }
     }
-
 
     async withdrawCash(amount) {
         // Get the last transaction to fetch the current cash in the machine
@@ -138,6 +129,80 @@ class TreasuryService {
 
             // Save the first withdrawal transaction
             return await TreasuryRepository.createTransaction(transactionData);
+        }
+    }
+
+    async getCashAndTodayVisaIncome() {
+        try {
+            // Fetch the latest treasury record for cash in machine
+            const lastTransaction = await TreasuryRepository.getLastTransaction()
+
+
+            if (!lastTransaction) {
+                throw new Error('No treasury records found');
+            }
+
+            // Ensure valid cash in machine data
+            const cashInMachine = lastTransaction ? parseFloat(lastTransaction.cashInMachineAfter) : 0;
+
+            if (isNaN(cashInMachine)) {
+                throw new Error('Invalid cash_in_machine_after value');
+            }
+
+            // Fetch today's total visa income
+            const today = new Date().toISOString().split('T')[0];
+            const todayVisaIncome = await Treasury.sum('amount', {
+                where: {
+                    transaction_type: 'income',
+                    payment_method: 'visa',
+                    date: today,
+                },
+            });
+
+            const total = cashInMachine + (todayVisaIncome || 0);
+
+            return {
+                cashInMachine,
+                todayVisaIncome: todayVisaIncome || 0,
+                total,
+            };
+        } catch (error) {
+            console.error('Error in getCashAndTodayVisaIncome:', error.message);
+            throw new Error(`Failed to fetch cash and today's visa income: ${error.message}`);
+        }
+    }
+
+    async getTodayIncomeExpensesProfit() {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+
+            // Calculate today's income
+            const todayIncome = await Treasury.sum('amount', {
+                where: {
+                    transactionType: 'income',
+                    date: today,
+                },
+            });
+
+            // Calculate today's expenses
+            const todayExpenses = await Treasury.sum('amount', {
+                where: {
+                    transactionType: 'expense',
+                    date: today,
+                },
+            });
+
+            const income = todayIncome || 0;
+            const expenses = todayExpenses || 0;
+            const profit = income - expenses;
+
+            return {
+                income,
+                expenses,
+                profit,
+            };
+        } catch (error) {
+            throw new Error(`Failed to fetch today's incomes, expenses, and profit: ${error.message}`);
         }
     }
 
