@@ -16,6 +16,11 @@ class ClientService {
   async deleteClient(id) {
     return await ClientRepository.deleteClient(id);
   }
+
+  async updateClient(id, data) {
+    return await ClientRepository.updateClient(id, data);
+  }
+
 }
 
 module.exports = new ClientService();

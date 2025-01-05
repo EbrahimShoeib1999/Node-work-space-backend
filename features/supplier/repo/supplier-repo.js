@@ -47,4 +47,5 @@ class SupplierRepository {
     }
 }
 
+
 module.exports = new SupplierRepository();

@@ -1,7 +1,7 @@
 // ClientController
 const ClientService = require("../service/client-service");
 const ApiErrorCode = require("../../../core/api-error");
-const { clientValidationSchema } = require("../utils/client-validation");
+const { clientValidationSchema ,updateClientValidationSchema} = require("../utils/client-validation");
 
 class ClientController {
   async create(req, res) {
@@ -98,6 +98,45 @@ class ClientController {
       });
     }
   }
+
+  async update(req, res) {
+    const { id } = req.params;
+
+    const { error } = updateClientValidationSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        isSuccessful: false,
+        message: "Validation error",
+        error: {
+          errorCode: ApiErrorCode.validation,
+          message: error.message,
+        },
+      });
+    }
+
+    try {
+      const result = await ClientService.updateClient(id,req.body);
+      if (!result) {
+        return res.status(404).json({
+          isSuccessful: false,
+          message: "Client not found.",
+          error: { errorCode: ApiErrorCode.notFound },
+        });
+      }
+      res.status(200).json({
+        isSuccessful: true,
+        message: "Client updated successfully.",
+        data : result
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessful: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+  }
+
 }
 
 module.exports = new ClientController();

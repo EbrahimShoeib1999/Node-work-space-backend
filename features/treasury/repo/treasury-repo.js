@@ -21,17 +21,21 @@ class TreasuryRepository {
         });
     }
 
-    async updateTransaction(id, data) {
-        const transaction = await Treasury.findByPk(id);
-        if (!transaction) throw new Error('Transaction not found');
-        return await transaction.update(data);
+    async getTransactionSum(transactionType, date) {
+        try {
+            const sum = await Treasury.sum('amount', {
+                where: {
+                    transactionType: transactionType,
+                    date: date,
+                },
+            });
+            return sum || 0;
+        } catch (error) {
+            console.error(`Error fetching sum for ${transactionType} on ${date}:`, error);
+            throw new Error(`Failed to fetch sum for ${transactionType}: ${error.message}`);
+        }
     }
 
-    async deleteTransaction(id) {
-        const transaction = await Treasury.findByPk(id);
-        if (!transaction) throw new Error('Transaction not found');
-        return await transaction.destroy();
-    }
 }
 
 module.exports = new TreasuryRepository();
