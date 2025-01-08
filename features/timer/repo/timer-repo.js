@@ -1,4 +1,4 @@
-const { Timer } = require("../../../models/index");
+const { Timer } = require("../models/timer");
 
 class TimerRepository {
   async findById(timerId) {
@@ -12,7 +12,7 @@ class TimerRepository {
 
   async findAll(query) {
     try {
-      return await Timer.findAll({ where: query });
+      return await Timer.findAll();
     } catch (error) {
       console.error("Error finding timers with query:", error);
       throw new Error("Failed to retrieve timers.");

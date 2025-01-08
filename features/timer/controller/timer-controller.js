@@ -142,6 +142,24 @@ class TimerController {
         }
     }
 
+    async findAll(req, res) {
+        try {
+            const result = await TimerService.findAll();
+
+            res.status(200).json({
+                isSuccessful: true,
+                message: "Got timers successfully.",
+                data: result,
+            });
+        } catch (err) {
+            res.status(500).json({
+                isSuccessful: false,
+                message: "Server error",
+                error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+            });
+        }
+    }
+
     // Get all timers for a client
     async getTimersByClientId(req, res) {
         const { clientId } = req.params;

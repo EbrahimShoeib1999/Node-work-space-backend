@@ -11,6 +11,7 @@ router.post("/:id/end", TimerController.end);
 router.post("/:id/pay", TimerController.pay); // Mark timer as paid
 router.get("/client/:clientId", TimerController.getTimersByClientId); // Get timers by clientId
 router.get("/:id/price", TimerController.calculatePrice);
+router.get("/", TimerController.findAll);
 router.delete("/:id", TimerController.delete);
 
 module.exports = router;

@@ -75,6 +75,7 @@ Timer.init(
         sequelize,
         modelName: "Timer",
         tableName: "Timers", // Explicit table name
+        underscored: true,
         timestamps: true, // Adds createdAt and updatedAt fields
     }
 );
