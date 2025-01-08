@@ -11,15 +11,15 @@ module.exports = {
         primaryKey: true,
         allowNull: false,
       },
-      clientId: {
-        type: Sequelize.INTEGER,
+      client_id: { // Snake case for database column
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Clients', // Ensure this matches the table name of the Client model
-          key: 'id',
+          model: "Clients", // Matches the table name of the Client model
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       totalCost: {
         type: Sequelize.DECIMAL(10, 2),

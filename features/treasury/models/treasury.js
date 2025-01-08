@@ -25,6 +25,7 @@ Treasury.init(
                 'maintenance',
                 'timer',
                 'order',
+                'reservation',
                 'cash deposit',
                 'cash withdrawal',
                 'other'
