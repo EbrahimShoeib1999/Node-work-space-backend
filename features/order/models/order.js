@@ -1,34 +1,40 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../../../core/database");
-const Client = require("../../client/models/client");
+const sequelize = require('../../../core/database');
 
-const Status = {
-  PENDING: "PENDING",
-  PAID: "PAID",
-  CANCELED: "CANCELED",
-};
-
-const Order = sequelize.define("Order", {
-  clientId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+const Status = ["pending", "paid", "canceled"]
+const Order = sequelize.define(
+  "Order",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    clientId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "client_id", // Maps to "client_id" in the database
+    },
+    status: {
+      type: DataTypes.ENUM("pending", "paid", "canceled"),
+      allowNull: false,
+      defaultValue: "pending",
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      field: "created_at", // Maps to "created_at" in the database
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      field: "updated_at", // Maps to "updated_at" in the database
+    },
   },
-  totalCost: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: true,
-  },
-  status: {
-    type: DataTypes.ENUM(Object.values(Status)),
-    allowNull: false,
-    defaultValue: Status.PENDING,
-  },
-}, {
-  timestamps: true,
-});
+  {
+    tableName: "orders", // Explicitly set the table name
+    timestamps: true, // Enable Sequelize's automatic timestamps
+  }
+);
 
-// Define associations in a separate function
-Order.associate = (models) => {
-  Order.belongsTo(models.Client, { foreignKey: "clientId" });
-};
-
-module.exports = { Order, Status };
+module.exports = {Order, Status};

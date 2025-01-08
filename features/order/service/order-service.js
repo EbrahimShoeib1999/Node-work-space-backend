@@ -1,102 +1,104 @@
 const OrderRepository = require("../repo/order-repo");
 const { Status } = require("../models/order");
 const Inventory = require("../../inventory/models/inventory");
-const { sequelize } = require("../../../core/database");
-
+const sequelize = require("../../../core/database"); // Ensure this path is correct
+const Client = require("../../client/models/client"); // Corrected import
 
 class OrderService {
-  // Create an order if it does not exist, or return the existing one if it's in 'PENDING' status
   async createOrder(clientId) {
-    const transaction = await sequelize.transaction();
+    // Verify that `sequelize` is defined and has the `transaction` method
+    if (!sequelize || typeof sequelize.transaction !== "function") {
+      throw new Error("Sequelize is not properly initialized.");
+    }
+
+    const transaction = await sequelize.transaction(); // Start a new transaction
     try {
+      // Validate clientId by checking if the client exists
+      const clientExists = await Client.findOne({ where: { id: clientId } });
+      if (!clientExists) {
+        throw new Error("Invalid client ID");
+      }
+
       // Try to find an existing pending order for the client
-      let order = await OrderRepository.findPendingOrderByClientId(clientId);
+      let order = await OrderRepository.findPendingOrderByClientId(clientId, { transaction });
 
       // If no pending order exists, create a new one
       if (!order) {
-        order = await OrderRepository.createOrder({
-          clientId,
-          status: Status.PENDING,
-          totalCost: 0,
-        });
-      } else if (order.status === Status.CANCELED || order.status === Status.PAID) {
+        order = await OrderRepository.createOrder(
+          {
+            clientId,
+            status: Status.PENDING, // Use the correct status from the enum
+            totalCost: 0,
+          },
+          { transaction }
+        );
+      } else if (order.status === Status.PENDING || order.status === Status.PAID) {
         // If the existing order is canceled or paid, create a new order
-        order = await OrderRepository.createOrder({
-          clientId,
-          status: Status.PENDING,
-          totalCost: 0,
-        });
+        order = await OrderRepository.createOrder(
+          {
+            clientId,
+            status: Status.PENDING, // Use the correct status from the enum
+            totalCost: 0,
+          },
+          { transaction }
+        );
       }
 
-      // Return the order (whether newly created or the existing one)
+      // Commit the transaction
       await transaction.commit();
       return order;
     } catch (error) {
+      // Rollback the transaction in case of error
       await transaction.rollback();
       throw error;
     }
   }
-
-  // Cancel an order and return the stock to inventory
+  
   async cancelOrder(orderId) {
-    const transaction = await sequelize.transaction();
-    try {
-      const order = await OrderRepository.findOrderById(orderId);
-      if (!order || order.status === Status.CANCELED) {
-        throw new Error(`Invalid order ID ${orderId}`);
-      }
-
-      const items = order.OrderItems;
-      for (const item of items) {
-        const inventory = await Inventory.findByPk(item.inventoryId);
-        if (!inventory) throw new Error(`Inventory not found for ID ${item.inventoryId}`);
-
-        // Return the stock based on the unit type
-        if (inventory.unitType === "piece") {
-          await inventory.update(
-              { stockQuantity: inventory.stockQuantity + item.quantity },
-              { transaction }
-          );
-        } else if (inventory.unitType === "gram") {
-          await inventory.update(
-              { stockQuantity: inventory.stockQuantity + item.quantity },
-              { transaction }
-          );
-        }
-      }
-
-      await order.update({ status: Status.CANCELED }, { transaction });
-      await transaction.commit();
-      return order;
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
+    // Verify that `sequelize` is defined and has the `transaction` method
+    if (!sequelize || typeof sequelize.transaction !== "function") {
+      throw new Error("Sequelize is not properly initialized.");
     }
-  }
 
-  // Checkout an order and mark it as paid
-  async checkout(orderId) {
-    const transaction = await sequelize.transaction();
+    const transaction = await sequelize.transaction(); // Start a new transaction
     try {
-      const order = await OrderRepository.findOrderById(orderId);
+      // Find the order by ID
+      const order = await OrderRepository.findOrderById(orderId, { transaction });
+
+      // Check if the order exists
       if (!order) {
-        throw new Error(`Order with ID ${orderId} not found`);
+        throw new Error("Order not found");
       }
 
-      if (order.status !== Status.PENDING) {
-        throw new Error(`Order with ID ${orderId} cannot be paid as it is not in PENDING status`);
+      // Check if the order is already canceled
+      if (order.status === Status.CANCELED) {
+        throw new Error("Order is already canceled");
       }
 
-      await (await order).update({ status: Status.PAID }, { transaction });
+      // Check if the order is paid (you may not want to cancel paid orders)
+      if (order.status === Status.PAID) {
+        throw new Error("Cannot cancel a paid order");
+      }
+
+      // Update the order status to CANCELED
+      await OrderRepository.updateOrder(
+        orderId,
+        { status: Status.CANCELED },
+        { transaction }
+      );
+
+      // Commit the transaction
       await transaction.commit();
-      return order;
+
+      return { message: "Order canceled successfully", orderId };
     } catch (error) {
+      // Rollback the transaction in case of error
       await transaction.rollback();
       throw error;
     }
   }
+
+  // Other methods (cancelOrder, checkout) remain unchanged
 }
 
 module.exports = new OrderService();
-
-

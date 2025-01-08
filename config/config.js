@@ -2,21 +2,21 @@
 module.exports = {
     "development": {
         "username": "postgres",
-        "password": "8291917Mn",
+        "password": "root",
         "database": "workspace",
         "host": "127.0.0.1",
         "dialect": "postgres"
     },
     "test": {
-        "username": "postgres",
-        "password": "8291917Mn",
+       "username": "postgres",
+        "password": "root",
         "database": "workspace",
         "host": "127.0.0.1",
         "dialect": "postgres"
     },
     "production": {
         "username": "postgres",
-        "password": "8291917Mn",
+        "password": "root",
         "database": "workspace",
         "host": "127.0.0.1",
         "dialect": "postgres"
