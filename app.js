@@ -11,6 +11,7 @@ const clientRouter = require("./features/client/router/client-router");
 const treasuryRouter = require("./features/treasury/router/treasury-router");
 const inventoryRouter = require("./features/inventory/router/inventory-router");
 const supplierRouter = require("./features/supplier/router/supplier-router");
+const timerRouter = require("./features/timer/router/timer-router");
 
 // Middleware
 app.use(morgan("dev"));
@@ -44,6 +45,7 @@ app.use("/api/client", clientRouter);
 app.use("/api/treasury", treasuryRouter);
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/supplier", supplierRouter);
+app.use("/api/timer", timerRouter);
 
 // 404 Error handler for unknown routes
 app.use((req, res, next) => {

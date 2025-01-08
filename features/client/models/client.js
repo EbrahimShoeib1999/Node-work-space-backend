@@ -1,25 +1,38 @@
-const { DataTypes } = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../../../core/database");
-const {Order} = require("../../order/models/order");
-const {Timer} = require("../../timer/models/timer");
 
-const Client = sequelize.define("Client", {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  contactInfo: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-}, {
-  timestamps: true,
-});
+class Client extends Model {
+  // Static method for defining associations
+  static associate(models) {
+    Client.hasMany(models.Order, { foreignKey: "clientId" });
+    Client.hasMany(models.Timer, { foreignKey: "clientId" });
+  }
+}
 
-
-Client.associate = (models) => {
-  Client.hasMany(models.Order, { foreignKey: "clientId" });
-  Client.hasMany(models.Timer, { foreignKey: "clientId" });
-};
+Client.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+        allowNull: false,
+        comment: 'Primary key, unique identifier for each admin user',
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      contactInfo: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+    },
+    {
+      sequelize,
+      modelName: "Client",
+      tableName: "Clients", // Explicit table name
+      timestamps: true, // Adds createdAt and updatedAt fields
+    }
+);
 
 module.exports = Client;
