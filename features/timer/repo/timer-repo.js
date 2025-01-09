@@ -51,8 +51,8 @@ class TimerRepository {
     try {
       return await Timer.create(data);
     } catch (error) {
-      console.error("Error creating timer:", error);
-      throw new Error("Failed to create timer.");
+      console.error("Error creating timer: ", error);
+      throw new Error("Failed to create timer: " + error.message);
     }
   }
 

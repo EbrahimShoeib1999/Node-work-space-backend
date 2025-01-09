@@ -12,6 +12,7 @@ const treasuryRouter = require("./features/treasury/router/treasury-router");
 const inventoryRouter = require("./features/inventory/router/inventory-router");
 const supplierRouter = require("./features/supplier/router/supplier-router");
 const timerRouter = require("./features/timer/router/timer-router");
+const roomRouter = require("./features/rooms/router/room-router");
 
 // Middleware
 app.use(morgan("dev"));
@@ -46,6 +47,7 @@ app.use("/api/treasury", treasuryRouter);
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/supplier", supplierRouter);
 app.use("/api/timer", timerRouter);
+app.use("/api/room", roomRouter);
 
 // 404 Error handler for unknown routes
 app.use((req, res, next) => {

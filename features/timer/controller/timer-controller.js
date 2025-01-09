@@ -127,7 +127,7 @@ class TimerController {
                 });
             }
 
-            const timer = await TimerService.pay(id,req.body.amount,req.body.paymentMethod);
+            const timer = await TimerService.pay(id,req.body.paymentMethod);
             res.status(200).json({
                 isSuccessful: true,
                 message: "Timer paid successfully.",
