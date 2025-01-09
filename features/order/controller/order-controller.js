@@ -1,10 +1,9 @@
 const OrderService = require("../service/order-service");
+const OrderItemService = require("../service/order-items-service"); // Fixed import
 const { orderValidationSchema, orderItemValidationSchema } = require("../utils/order-validation");
 const ApiErrorCode = require("../../../core/api-error");
 
-
 class OrderController {
-
   async createOrder(req, res) {
     try {
       const { error } = orderValidationSchema.validate(req.body);
@@ -34,7 +33,7 @@ class OrderController {
         message: "Server error",
         error: {
           errorCode: ApiErrorCode.unknownError,
-          message: err.message,
+          message: err.message,  
         },
       });
     }
@@ -86,22 +85,27 @@ class OrderController {
     }
   }
 
-
   async getOrderItems(req, res) {
     const { page = 1, limit = 10, startDate, endDate } = req.query;
 
     try {
       // Validate pagination parameters
       if (isNaN(page) || page < 1) {
-        return res.status(400).json({ error: 'Invalid page number. It must be a positive integer.' });
+        return res.status(400).json({
+          isSuccessfull: false,
+          message: "Invalid page number. It must be a positive integer.",
+        });
       }
 
       if (isNaN(limit) || limit < 1) {
-        return res.status(400).json({ error: 'Invalid limit. It must be a positive integer.' });
+        return res.status(400).json({
+          isSuccessfull: false,
+          message: "Invalid limit. It must be a positive integer.",
+        });
       }
 
       // Call the service function
-      const result = await orderItemService.getAllOrderItems({
+      const result = await OrderItemService.getAllOrderItems({
         page: parseInt(page, 10),
         limit: parseInt(limit, 10),
         startDate: startDate || null,
@@ -109,20 +113,26 @@ class OrderController {
       });
 
       // Return the result to the client
-      return res.status(200).json(result);
+      return res.status(200).json({
+        isSuccessfull: true,
+        message: "Order items fetched successfully.",
+        data: result,
+      });
     } catch (error) {
-      console.error('Error in getOrderItems:', error.message);
+      console.error("Error in getOrderItems:", error.message);
 
       // Return appropriate error responses
-      if (error.message.includes('Invalid')) {
-        return res.status(400).json({ error: error.message });
+      if (error.message.includes("Invalid")) {
+        return res.status(400).json({
+          isSuccessfull: false,
+          message: error.message,
+        });
       }
 
-      if (error.message.includes('unexpected error')) {
-        return res.status(500).json({ error: 'Internal server error. Please contact support.' });
-      }
-
-      return res.status(500).json({ error: 'Unexpected error. Please try again later.' });
+      return res.status(500).json({
+        isSuccessfull: false,
+        message: "Internal server error. Please contact support.",
+      });
     }
   }
 
@@ -166,6 +176,14 @@ class OrderController {
     const { newQuantity } = req.body;
 
     try {
+      // Validate newQuantity
+      if (isNaN(newQuantity) || newQuantity < 1) {
+        return res.status(400).json({
+          isSuccessfull: false,
+          message: "Invalid quantity. It must be a positive integer.",
+        });
+      }
+
       const orderItem = await OrderItemService.updateOrderItemQuantity(orderItemId, newQuantity);
       res.status(200).json({
         isSuccessfull: true,
@@ -207,8 +225,6 @@ class OrderController {
       });
     }
   }
-
 }
 
 module.exports = new OrderController();
-

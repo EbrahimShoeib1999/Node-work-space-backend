@@ -1,33 +1,29 @@
-const { Order, Status} = require("../models/order");
-const {OrderItem } = require("../models/order-item");
+const  {Order}  = require("../models/order");
+
+console.log(Order); // Check if this logs the Order model
+
 class OrderRepository {
-  async createOrder(data) {
-    return Order.create(data, {include: [OrderItem]});
-  }
-
-  async findOrderById(id) {
-    return await Order.findByPk(id, { include: [OrderItem] });
-  }
-
-  // In OrderRepository
-  async findPendingOrderByClientId(clientId) {
-    return await Order.findOne({
-      where: {
-        clientId,
-        status: Status.PENDING,
-      },
-      include: [OrderItem], // Include related OrderItem records
+  async findPendingOrderByClientId(clientId, options = {}) {
+    return await Order.findByPk(orderId, {
+      include: [
+        {
+          model: OrderItem, // The associated model
+          as: "OrderItems", // The alias defined in the association
+        },
+      ],
+      ...options, // Pass the transaction here
     });
   }
 
-
-
-  async updateOrder(id, updates) {
-    return await Order.update(updates, { where: { id } });
+  async createOrder(data, options = {}) {
+    return await Order.create(data, options);
   }
 
-  async deleteOrder(id) {
-    return await Order.destroy({ where: { id } });
+  async findOrderById(orderId, options = {}) {
+    return await Order.findByPk(orderId, {
+      include: ["OrderItems"],
+      ...options,
+    });
   }
 }
 
