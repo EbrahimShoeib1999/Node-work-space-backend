@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const AdminUserRepository = require("../repo/admin-repo");
 const {sign} = require("jsonwebtoken");
+const HistoryService = require("../../history/service/history-service");
 
 class AdminUserService {
     
@@ -43,6 +44,10 @@ class AdminUserService {
       process.env.JWT_SECRET, // Use a secure secret key in .env
       { expiresIn: "24h" } // Token expires in 1 hour
     );
+
+    console.log(user.id);
+
+    await HistoryService.createHistory(user.id,"USER_LOGIN","User logged in");
 
     return { token, user };
   }

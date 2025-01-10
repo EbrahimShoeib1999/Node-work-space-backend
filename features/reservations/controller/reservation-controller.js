@@ -8,6 +8,7 @@ const {
 } = require("../utils/reservation-validation");
 
 class ReservationController {
+
     // Create a new reservation
     async create(req, res) {
         const { error } = createReservationSchema.validate(req.body);
@@ -217,6 +218,7 @@ class ReservationController {
             });
         }
     }
+
 }
 
 module.exports = new ReservationController();
