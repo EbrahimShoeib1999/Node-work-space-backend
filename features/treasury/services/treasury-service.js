@@ -217,11 +217,23 @@ class TreasuryService {
     }
 
     async createOrderTransaction(amount,paymentMethod){
-
+        await this.createTransaction({
+            "transactionType": "income",
+            "specificType": "order",
+            "amount": amount,
+            "description": "timer payment",
+            "paymentMethod" : paymentMethod
+        });
     }
 
     async createReservationTransaction(amount,paymentMethod){
-
+        await this.createTransaction({
+            "transactionType": "income",
+            "specificType": "reservation",
+            "amount": amount,
+            "description": "timer payment",
+            "paymentMethod" : paymentMethod
+        });
     }
 
 }

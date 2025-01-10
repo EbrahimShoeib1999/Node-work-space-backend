@@ -13,7 +13,7 @@ const inventoryRouter = require("./features/inventory/router/inventory-router");
 const supplierRouter = require("./features/supplier/router/supplier-router");
 const timerRouter = require("./features/timer/router/timer-router");
 const roomRouter = require("./features/rooms/router/room-router");
-
+const reservationRouter = require("./features/reservations/router/reservation-router")
 // Middleware
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: false }));
@@ -48,6 +48,10 @@ app.use("/api/inventory", inventoryRouter);
 app.use("/api/supplier", supplierRouter);
 app.use("/api/timer", timerRouter);
 app.use("/api/room", roomRouter);
+app.use("/api/reservation", reservationRouter);
+
+
+
 
 // 404 Error handler for unknown routes
 app.use((req, res, next) => {

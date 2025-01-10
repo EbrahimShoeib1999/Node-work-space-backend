@@ -24,11 +24,13 @@ const createReservationSchema = Joi.object({
 
 // Validation for reservation ID
 const reservationIdSchema = Joi.object({
-    reservationId: Joi.string().uuid().required().messages({
-        "string.base": "Reservation ID must be a string.",
-        "string.uuid": "Reservation ID must be a valid UUID.",
-        "any.required": "Reservation ID is required.",
-    }),
+    paymentMethod : Joi.string()
+        .valid('cash', 'visa')
+        .required()
+        .messages({
+            "any.only": "Invalid Payment Method. Must be one of cash, visa.",
+            "string.empty": "Payment Method is required.",
+        }),
 });
 
 // Validation for client ID and room ID

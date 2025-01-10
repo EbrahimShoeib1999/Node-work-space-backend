@@ -1,6 +1,7 @@
 const ReservationRepository = require("../repo/reservation-repo");
 const RoomRepository = require("../../rooms/repo/room-repo");
 const { PaymentStatuses } = require("../models/reservation");
+const TreasuryService = require("../../treasury/services/treasury-service")
 
 class ReservationService {
     /**
@@ -37,14 +38,17 @@ class ReservationService {
         });
     }
 
-    async payForReservation(reservationId) {
+    async payForReservation(reservationId, paymentMethod) {
         const reservation = await ReservationRepository.findReservationById(reservationId);
         if (!reservation) throw new Error("Reservation not found.");
         if (reservation.paymentStatus === PaymentStatuses.PAID) {
             throw new Error("Reservation is already paid.");
         }
 
-        return await ReservationRepository.updateReservation(reservationId, { paymentStatus: PaymentStatuses.PAID });
+        const updatedReservation = await ReservationRepository.updateReservation(reservationId, { paymentStatus: PaymentStatuses.PAID });
+        await TreasuryService.createReservationTransaction(reservation.totalCost,paymentMethod)
+
+        return updatedReservation
     }
 
     async getAllReservations(filters) {

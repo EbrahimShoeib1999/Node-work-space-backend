@@ -58,17 +58,17 @@ class ReservationController {
 
     // Get a reservation by ID
     async getById(req, res) {
-        const { error } = reservationIdSchema.validate(req.params);
-        if (error) {
-            return res.status(400).json({
-                isSuccessful: false,
-                message: "Validation error",
-                error: {
-                    errorCode: ApiErrorCode.validation,
-                    message: error.message,
-                },
-            });
-        }
+        // const { error } = reservationIdSchema.validate(req.params);
+        // if (error) {
+        //     return res.status(400).json({
+        //         isSuccessful: false,
+        //         message: "Validation error",
+        //         error: {
+        //             errorCode: ApiErrorCode.validation,
+        //             message: error.message,
+        //         },
+        //     });
+        // }
 
         try {
             const reservation = await ReservationService.getReservationById(req.params.id);
@@ -95,7 +95,7 @@ class ReservationController {
 
     // Pay for a reservation
     async pay(req, res) {
-        const { error } = reservationIdSchema.validate(req.params);
+        const { error } = reservationIdSchema.validate(req.body);
         if (error) {
             return res.status(400).json({
                 isSuccessful: false,
@@ -108,7 +108,7 @@ class ReservationController {
         }
 
         try {
-            const reservation = await ReservationService.payForReservation(req.params.id);
+            const reservation = await ReservationService.payForReservation(req.params.id,req.body.paymentMethod);
             res.status(200).json({
                 isSuccessful: true,
                 message: "Reservation paid successfully.",
@@ -125,17 +125,17 @@ class ReservationController {
 
     // Cancel a reservation
     async cancel(req, res) {
-        const { error } = reservationIdSchema.validate(req.params);
-        if (error) {
-            return res.status(400).json({
-                isSuccessful: false,
-                message: "Validation error",
-                error: {
-                    errorCode: ApiErrorCode.validation,
-                    message: error.message,
-                },
-            });
-        }
+        // const { error } = reservationIdSchema.validate(req.params);
+        // if (error) {
+        //     return res.status(400).json({
+        //         isSuccessful: false,
+        //         message: "Validation error",
+        //         error: {
+        //             errorCode: ApiErrorCode.validation,
+        //             message: error.message,
+        //         },
+        //     });
+        // }
 
         try {
             const result = await ReservationService.cancelReservation(req.params.id);

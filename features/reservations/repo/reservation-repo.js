@@ -1,5 +1,5 @@
 const { Reservation } = require("../models/reservation");
-
+const {Op} = require("sequelize");
 class ReservationRepository {
     async createReservation(data) {
         try {
