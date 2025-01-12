@@ -9,8 +9,8 @@ class ClientService {
     return await ClientRepository.findClientById(id);
   }
 
-  async getAllClients() {
-    return await ClientRepository.findAllClients();
+  async getAllClients(query, page, size) {
+    return await ClientRepository.findAllClients(query, page , size);
   }
 
   async deleteClient(id) {

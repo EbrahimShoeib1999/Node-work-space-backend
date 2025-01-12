@@ -1,8 +1,11 @@
 const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../../../core/database");
+const { AdminUser, Roles } = require('../../auth/models/admin-user');
 
 class History extends Model {
-
+    static associate(models) {
+        History.belongsTo(models.AdminUser, { foreignKey: "userId" });
+    }
 }
 
 History.init(

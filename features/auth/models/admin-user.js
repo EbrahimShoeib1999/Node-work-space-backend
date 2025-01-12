@@ -2,7 +2,11 @@ const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../../../core/database');
 
 
-class AdminUser extends Model {}
+class AdminUser extends Model {
+    static associate(models) {
+        AdminUser.hasMany(models.History, { foreignKey: "userId" });
+    }
+}
 
 const Roles = {
   ADMIN: "ADMIN",

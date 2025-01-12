@@ -1,5 +1,5 @@
 const History  = require("../models/history");
-const AdminUser = require("../../auth/models/admin-user")
+const {AdminUser} = require("../../auth/models/admin-user")
 
 class HistoryRepository {
     // Get all transaction histories with optional filters
@@ -7,6 +7,12 @@ class HistoryRepository {
         try {
             return await History.findAll({
                 where: filters ,
+                include: [
+                    {
+                        model: AdminUser,
+                        attributes: ["id", "username", "role"], // Fields to include from AdminUser
+                    },
+                ],
             });
         } catch (error) {
             console.error("Error fetching transaction histories:", error);
