@@ -10,3 +10,8 @@ exports.update = async (id, data) => {
 
   return user.update(data);
 };
+
+
+exports. getUserById = async (id) => {
+  return await User.findByPk(id);
+};
