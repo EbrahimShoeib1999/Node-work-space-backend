@@ -21,7 +21,7 @@ const inventoryRouter = require("./features/inventory/router/inventory-router");
 const supplierRouter = require("./features/supplier/router/supplier-router");
 const orderRouter = require("./features/testOrder/order/route")
 const orderItemRouter = require("./features/testOrder/orderItem/route")
-
+const userChangeRouter = require("./features/setting/updateUser/router/updateUserRouter")
 // Middleware
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: false }));
@@ -56,7 +56,7 @@ app.use("/api/inventory", inventoryRouter);
 app.use("/api/supplier", supplierRouter);
 app.use("/api/order",orderRouter)
 app.use("/api/order-item",orderItemRouter)
-
+app.use("/api",userChangeRouter)
 // 404 Handler
 app.use((req, res, next) => {
   const error = new Error("Url route not found");
