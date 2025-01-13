@@ -19,6 +19,8 @@ const clientRouter = require("./features/client/router/client-router");
 const treasuryRouter = require("./features/treasury/router/treasury-router");
 const inventoryRouter = require("./features/inventory/router/inventory-router");
 const supplierRouter = require("./features/supplier/router/supplier-router");
+const orderRouter = require("./features/testOrder/order/route")
+const orderItemRouter = require("./features/testOrder/orderItem/route")
 
 // Middleware
 app.use(morgan("dev"));
@@ -52,6 +54,8 @@ app.use("/api/client", clientRouter);
 app.use("/api/treasury", treasuryRouter);
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/supplier", supplierRouter);
+app.use("/api/order",orderRouter)
+app.use("/api/order-item",orderItemRouter)
 
 // 404 Handler
 app.use((req, res, next) => {

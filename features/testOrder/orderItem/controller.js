@@ -3,13 +3,13 @@ const { OrderItem } = require('./model');
 // Create a new order item
 exports.createOrderItem = async (req, res) => {
     try {
-        const { orderId, productId, quantity, price } = req.body;
+        const { orderId, inventoryId, quantity, price } = req.body;
         // Validate required fields
-        if (!orderId || !price) {
-          return res.status(400).json({ error: 'orderId and price are required' });
+        if (!orderId || !price || !inventoryId) {
+          return res.status(400).json({ error: 'orderId , inventoryId and price are required' });
         }
     
-        const orderItem = await OrderItem.create({ orderId, productId, quantity, price });
+        const orderItem = await OrderItem.create({ orderId, inventoryId, quantity, price });
         res.status(201).json(orderItem);
       } catch (error) {
         res.status(500).json({ error: error.message });
