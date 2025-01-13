@@ -3,7 +3,7 @@ const OrderController = require("../controller/order-controller");
 
 const router = express.Router();
 
-router.post('/orders', OrderController.createOrder); // Create Order
+router.post('/', OrderController.createOrder); // Create Order
 router.patch('/orders/:id/cancel', OrderController.cancelOrder); // Cancel Order
 router.patch('/orders/:id/checkout', OrderController.checkout); // Checkout Order
 
