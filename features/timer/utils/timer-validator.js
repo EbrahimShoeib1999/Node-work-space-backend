@@ -19,19 +19,11 @@ const timerValidationSchema = Joi.object({
 });
 
 const payTimerValidationSchema = Joi.object({
-    amount: Joi.number()
-        .positive()
-        .required()
-        .messages({
-            'string.guid': 'amount must be positive',
-            'any.required': 'amount is required',
-        }),
-
     paymentMethod : Joi.string()
-        .valid('income', 'expense')
+        .valid('cash', 'visa')
         .required()
         .messages({
-            "any.only": "Invalid Payment Method. Must be one of income, expense.",
+            "any.only": "Invalid Payment Method. Must be one of cash, visa.",
             "string.empty": "Payment Method is required.",
         }),
 });

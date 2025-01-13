@@ -1,14 +1,7 @@
-// models/Room.js
-const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../../../core/database');
-const Reservation = require('../models/Reservation');
+const { DataTypes, Model } = require("sequelize");
+const sequelize = require("../../../core/database");
 
-class Room extends Model {
-    static associate(models) {
-        // Room has many Reservations
-        Room.hasMany(models.Reservation, { foreignKey: 'roomId', onDelete: 'CASCADE' });
-    }
-}
+class Room extends Model {}
 
 Room.init(
     {
@@ -16,24 +9,40 @@ Room.init(
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
+            allowNull: false,
+            comment: "Primary key, unique identifier for each room",
         },
         name: {
             type: DataTypes.STRING,
             allowNull: false,
+            comment: "Name of the room",
         },
         capacity: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            comment: "How many people the room can accommodate",
         },
-        isAvailable: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
+        status: {
+            type: DataTypes.ENUM("AVAILABLE", "NOT_AVAILABLE"),
+            allowNull: false,
+            defaultValue: "AVAILABLE",
+            comment: "Room availability status",
+        },
+        hourlyRate: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false,
+            defaultValue: 0.0,
+            comment: "Hourly rate for the room",
         },
     },
     {
         sequelize,
-        modelName: 'Room',
+        modelName: "Room",
+        tableName: "Rooms",
         timestamps: true,
+        underscored: true,
+        createdAt: "created_at",
+        updatedAt: "updated_at",
     }
 );
 

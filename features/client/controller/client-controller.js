@@ -34,8 +34,11 @@ class ClientController {
   }
 
   async getAll(req, res) {
+
+    const {query,page,size} = req.query;
+
     try {
-      const clients = await ClientService.getAllClients();
+      const clients = await ClientService.getAllClients(query,page,size);
       res.status(200).json({
         isSuccessfull: true,
         message: "Fetched all clients successfully.",

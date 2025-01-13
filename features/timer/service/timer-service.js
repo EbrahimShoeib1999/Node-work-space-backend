@@ -87,7 +87,7 @@ class TimerService {
     return await TimerRepository.findAll(query);
   }
 
-  async pay(timerId,amount,paymentMethod) {
+  async pay(timerId,paymentMethod) {
     const timer = await TimerRepository.findById(timerId);
     if (!timer) throw new Error("Timer not found.");
 
@@ -97,7 +97,7 @@ class TimerService {
 
     const updatedTimer = await TimerRepository.updatePaymentStatus(timerId, PaymentStatuses.PAID);
 
-    await TreasuryService.createTimerTransaction(amount,paymentMethod)
+    await TreasuryService.createTimerTransaction(updatedTimer.totalPrice,paymentMethod)
 
     return updatedTimer
   }

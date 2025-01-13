@@ -12,7 +12,7 @@ function verifyToken(req, res, next) {
       next();
     } catch (error) {
       res.status(400).json({
-        isSuccessfull: false,
+        isSuccessful: false,
         message: "This user is not authorized",
         error: {
           errorCode: ApiErrorCode.authorization,
@@ -22,7 +22,7 @@ function verifyToken(req, res, next) {
     }
   } else {
     res.status(400).json({
-      isSuccessfull: false,
+      isSuccessful: false,
       message: "This user is not authorized",
       error: {
         errorCode: ApiErrorCode.authorization,
@@ -40,7 +40,7 @@ function validateRole(requiredRole) {
         next();
       } else {
         res.status(400).json({
-          isSuccessfull: false,
+          isSuccessful: false,
           message: "This user is not authorized",
           error: {
             errorCode: ApiErrorCode.authorization,
@@ -60,7 +60,7 @@ function validateRoles(allowedRoles) {
         next();
       } else {
         res.status(400).json({
-          isSuccessfull: false,
+          isSuccessful: false,
           message: "This user is not authorized",
           error: {
             errorCode: ApiErrorCode.authorization,
