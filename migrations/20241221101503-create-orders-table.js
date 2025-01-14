@@ -1,46 +1,46 @@
 'use strict';
 
-const { Status } = require('../features/order/models/order');
-
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Orders', {
       id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
         allowNull: false,
       },
-      client_id: { // Snake case for database column
+      client_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Clients", // Matches the table name of the Client model
-          key: "id",
+          model: 'Clients',
+          key: 'id',
         },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
+        onDelete: 'CASCADE',
       },
-      totalCost: {
+      total_price: {
         type: Sequelize.DECIMAL(10, 2),
-        allowNull: true,
-      },
-      status: {
-        type: Sequelize.ENUM(...Object.values(Status)),
         allowNull: false,
-        defaultValue: Status.PENDING,
+        defaultValue: 0,
       },
-      createdAt: {
+      payment_status: {
+        type: Sequelize.ENUM('PENDING', 'PAID'),
+        defaultValue: 'PENDING',
+        allowNull: false,
+      },
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
     });
   },
-
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('Orders');
   },

@@ -1,227 +1,181 @@
 const OrderService = require("../service/order-service");
-const OrderItemService = require("../service/order-items-service"); // Fixed import
-const { orderValidationSchema, orderItemValidationSchema } = require("../utils/order-validation");
+const {
+  createOrderSchema,
+  addOrderItemSchema,
+  paymentSchema,
+} = require("../utils/order-validation");
 const ApiErrorCode = require("../../../core/api-error");
 
 class OrderController {
   async createOrder(req, res) {
-    try {
-      const { error } = orderValidationSchema.validate(req.body);
-      if (error) {
-        return res.status(400).json({
-          isSuccessfull: false,
-          message: "Validation error",
-          error: {
-            errorCode: ApiErrorCode.validation,
-            message: error.message,
-          },
-        });
-      }
-
-      const { clientId } = req.body;
-      const createdOrder = await OrderService.createOrder(clientId);
-
-      res.status(201).json({
-        isSuccessfull: true,
-        message: "Order created successfully.",
-        data: createdOrder,
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({
-        isSuccessfull: false,
-        message: "Server error",
+    const { error } = createOrderSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        isSuccessful: false,
+        message: "Validation error",
         error: {
-          errorCode: ApiErrorCode.unknownError,
-          message: err.message,  
-        },
-      });
-    }
-  }
-
-  async cancelOrder(req, res) {
-    const { id } = req.params;
-
-    try {
-      const order = await OrderService.cancelOrder(id);
-      res.status(200).json({
-        isSuccessfull: true,
-        message: "Order canceled successfully.",
-        data: order,
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({
-        isSuccessfull: false,
-        message: "Server error",
-        error: {
-          errorCode: ApiErrorCode.unknownError,
-          message: err.message,
-        },
-      });
-    }
-  }
-
-  async checkout(req, res) {
-    const { id } = req.params;
-
-    try {
-      const order = await OrderService.checkout(id);
-      res.status(200).json({
-        isSuccessfull: true,
-        message: "Order marked as paid.",
-        data: order,
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({
-        isSuccessfull: false,
-        message: "Server error",
-        error: {
-          errorCode: ApiErrorCode.unknownError,
-          message: err.message,
-        },
-      });
-    }
-  }
-
-  async getOrderItems(req, res) {
-    const { page = 1, limit = 10, startDate, endDate } = req.query;
-
-    try {
-      // Validate pagination parameters
-      if (isNaN(page) || page < 1) {
-        return res.status(400).json({
-          isSuccessfull: false,
-          message: "Invalid page number. It must be a positive integer.",
-        });
-      }
-
-      if (isNaN(limit) || limit < 1) {
-        return res.status(400).json({
-          isSuccessfull: false,
-          message: "Invalid limit. It must be a positive integer.",
-        });
-      }
-
-      // Call the service function
-      const result = await OrderItemService.getAllOrderItems({
-        page: parseInt(page, 10),
-        limit: parseInt(limit, 10),
-        startDate: startDate || null,
-        endDate: endDate || null,
-      });
-
-      // Return the result to the client
-      return res.status(200).json({
-        isSuccessfull: true,
-        message: "Order items fetched successfully.",
-        data: result,
-      });
-    } catch (error) {
-      console.error("Error in getOrderItems:", error.message);
-
-      // Return appropriate error responses
-      if (error.message.includes("Invalid")) {
-        return res.status(400).json({
-          isSuccessfull: false,
+          errorCode: ApiErrorCode.validation,
           message: error.message,
-        });
-      }
+        },
+      });
+    }
 
-      return res.status(500).json({
-        isSuccessfull: false,
-        message: "Internal server error. Please contact support.",
+    try {
+      const { clientId, orderItems } = req.body;
+      const order = await OrderService.createOrder(clientId, orderItems);
+      res.status(201).json({
+        isSuccessful: true,
+        message: "Order created successfully.",
+        data: order,
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessful: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+  }
+
+  async getAllOrders(req,res) {
+
+    try {
+      const orders = await OrderService.getAllOrders();
+      res.status(200).json({
+        isSuccessful: true,
+        message: "Orders retrieved successfully.",
+        data: orders,
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessful: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+  }
+
+  async deleteOrder(req, res) {
+    const { id } = req.params;
+
+    try {
+      const orders = await OrderService.deleteOrder(id);
+      res.status(200).json({
+        isSuccessful: true,
+        message: "Orders retrieved successfully.",
+        data: orders,
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessful: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+
+  }
+
+  async payOrder(req, res) {
+    const { id } = req.params;
+    const { error } = paymentSchema.validate(req.body);
+
+    if (error) {
+      return res.status(400).json({
+        isSuccessful: false,
+        message: "Validation error",
+        error: {
+          errorCode: ApiErrorCode.validation,
+          message: error.message,
+        },
+      });
+    }
+
+    try {
+      const { paymentMethod } = req.body;
+      const order = await OrderService.payOrder(id, paymentMethod);
+      res.status(200).json({
+        isSuccessful: true,
+        message: "Order paid successfully.",
+        data: order,
+      });
+    } catch (err) {
+      res.status(err.message === "Order not found." ? 404 : 500).json({
+        isSuccessful: false,
+        message: err.message,
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+  }
+
+  async getOrdersByClientId(req, res) {
+    const { clientId } = req.params;
+
+    try {
+      const orders = await OrderService.getOrdersByClientId(clientId);
+      res.status(200).json({
+        isSuccessful: true,
+        message: "Orders retrieved successfully.",
+        data: orders,
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessful: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
       });
     }
   }
 
   async addOrderItem(req, res) {
+    const { error } = addOrderItemSchema.validate(req.body);
+
+    if (error) {
+      return res.status(400).json({
+        isSuccessful: false,
+        message: "Validation error",
+        error: {
+          errorCode: ApiErrorCode.validation,
+          message: error.message,
+        },
+      });
+    }
+
     try {
-      const { error } = orderItemValidationSchema.validate(req.body);
-      if (error) {
-        return res.status(400).json({
-          isSuccessfull: false,
-          message: "Validation error",
-          error: {
-            errorCode: ApiErrorCode.validation,
-            message: error.message,
-          },
-        });
-      }
+      const { orderId, inventoryItemId, quantity } = req.body;
+      const updatedOrder = await OrderService.addOrderItem(orderId, {
+        inventoryItemId,
+        quantity,
+      });
 
-      const { orderId, inventoryId, quantity } = req.body;
-      const newItem = await OrderItemService.addOrderItem(orderId, inventoryId, quantity);
-
-      res.status(201).json({
-        isSuccessfull: true,
+      res.status(200).json({
+        isSuccessful: true,
         message: "Order item added successfully.",
-        data: newItem,
+        data: updatedOrder,
       });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({
-        isSuccessfull: false,
-        message: "Server error",
-        error: {
-          errorCode: ApiErrorCode.unknownError,
-          message: err.message,
-        },
+      res.status(err.message === "Order not found." ? 404 : 500).json({
+        isSuccessful: false,
+        message: err.message,
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
       });
     }
   }
 
-  async updateOrderItemQuantity(req, res) {
+  async removeOrderItem(req, res) {
     const { orderItemId } = req.params;
-    const { newQuantity } = req.body;
 
     try {
-      // Validate newQuantity
-      if (isNaN(newQuantity) || newQuantity < 1) {
-        return res.status(400).json({
-          isSuccessfull: false,
-          message: "Invalid quantity. It must be a positive integer.",
-        });
-      }
-
-      const orderItem = await OrderItemService.updateOrderItemQuantity(orderItemId, newQuantity);
+      const updatedOrder = await OrderService.removeOrderItem( orderItemId);
       res.status(200).json({
-        isSuccessfull: true,
-        message: "Order item quantity updated successfully.",
-        data: orderItem,
+        isSuccessful: true,
+        message: "Order item removed successfully.",
+        data: updatedOrder,
       });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({
-        isSuccessfull: false,
-        message: "Server error",
-        error: {
-          errorCode: ApiErrorCode.unknownError,
-          message: err.message,
-        },
-      });
-    }
-  }
-
-  async deleteOrderItem(req, res) {
-    const { id } = req.params;
-
-    try {
-      const deletedItem = await OrderItemService.deleteOrderItem(id);
-      res.status(200).json({
-        isSuccessfull: true,
-        message: "Order item deleted successfully.",
-        data: deletedItem,
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({
-        isSuccessfull: false,
-        message: "Server error",
-        error: {
-          errorCode: ApiErrorCode.unknownError,
-          message: err.message,
-        },
+      res.status(err.message === "Order not found." ? 404 : 500).json({
+        isSuccessful: false,
+        message: err.message,
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
       });
     }
   }

@@ -211,7 +211,7 @@ class TreasuryService {
             "transactionType": "income",
             "specificType": "timer",
             "amount": amount,
-            "description": "timer payment",
+            "description": "Timer payment",
             "paymentMethod" : paymentMethod
         });
     }
@@ -221,7 +221,7 @@ class TreasuryService {
             "transactionType": "income",
             "specificType": "order",
             "amount": amount,
-            "description": "timer payment",
+            "description": "Order payment",
             "paymentMethod" : paymentMethod
         });
     }
@@ -231,7 +231,7 @@ class TreasuryService {
             "transactionType": "income",
             "specificType": "reservation",
             "amount": amount,
-            "description": "timer payment",
+            "description": "Reservation payment",
             "paymentMethod" : paymentMethod
         });
     }

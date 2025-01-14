@@ -1,53 +1,51 @@
 'use strict';
 
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('OrderItems', {
       id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
         allowNull: false,
       },
-      orderId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Orders', // Ensure this matches the table name of the Order model
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
-      inventoryId: {
+      order_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'inventory', // Ensure this matches the table name of the Inventory model
+          model: 'Orders',
           key: 'id',
         },
-        onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
+      inventory_item_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'inventory', // Assuming you have an Inventory model
+          key: 'id',
+        },
+      },
       quantity: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.INTEGER,
         allowNull: false,
+        validate: {
+          min: 1,
+        },
       },
-      totalPrice: {
-        type: Sequelize.DECIMAL(10, 2),
-        allowNull: false,
-      },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
     });
   },
-
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('OrderItems');
   },

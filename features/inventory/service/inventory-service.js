@@ -84,6 +84,18 @@ class InventoryService {
     return await this.findInventoryItemById(inventoryItemId);
   }
 
+  async consumeInventoryStock(inventoryItemId,quantity){
+    const inventory = await this.findInventoryItemById(inventoryItemId);
+
+    if (!inventory) {
+      throw new Error(`Inventory not found: ${inventoryItemId}`);
+    }
+
+    await InventoryRepository.updateInventoryItem(inventoryItemId, {
+      stockQuantity: (inventory.stockQuantity - quantity),
+    });
+  }
+
   async getAllInventoryItems(filters) {
     return await InventoryRepository.findAllInventoryItems(filters);
   }

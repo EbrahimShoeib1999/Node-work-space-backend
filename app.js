@@ -19,43 +19,22 @@ const clientRouter = require("./features/client/router/client-router");
 const treasuryRouter = require("./features/treasury/router/treasury-router");
 const inventoryRouter = require("./features/inventory/router/inventory-router");
 const supplierRouter = require("./features/supplier/router/supplier-router");
-const orderRouter = require("./features/testOrder/order/route")
-const orderItemRouter = require("./features/testOrder/orderItem/route")
+const timerRouter = require("./features/timer/router/timer-router");
+const roomRouter = require("./features/rooms/router/room-router");
+const reservationRouter = require("./features/reservations/router/reservation-router");
+const historyRouter = require("./features/history/router/history-router");
+const orderRouter = require("./features/order/router/order-router")
 
-// Middleware
-app.use(morgan("dev"));
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-app.use(
-  cors({
-    origin: "*",
-  })
-);
-
-// Error handling for CORS and preflight requests
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
-    return res.status(200).json({});
-  }
-  next();
-});
-
-
-// Routes 
 app.use("/api/admin-users", adminUserRouter);
 app.use("/api/client", clientRouter);
 app.use("/api/treasury", treasuryRouter);
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/supplier", supplierRouter);
-app.use("/api/order",orderRouter)
-app.use("/api/order-item",orderItemRouter)
+app.use("/api/timer", timerRouter);
+app.use("/api/room", roomRouter);
+app.use("/api/reservation", reservationRouter);
+app.use("/api/history", historyRouter);
+app.use("/api/order", orderRouter);
 
 // 404 Handler
 app.use((req, res, next) => {

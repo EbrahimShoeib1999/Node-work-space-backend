@@ -1,29 +1,62 @@
-const  {Order}  = require("../models/order");
-
-console.log(Order); // Check if this logs the Order model
+const Order  = require("../models/order");
+const OrderItem  = require("../models/order-item");
+const Inventory  = require("../../inventory/models/inventory");
 
 class OrderRepository {
-  async findPendingOrderByClientId(clientId, options = {}) {
-    return await Order.findByPk(orderId, {
+
+  async createOrder(orderData) {
+    return await Order.create(orderData, {
       include: [
+
         {
-          model: OrderItem, // The associated model
-          as: "OrderItems", // The alias defined in the association
+          model: OrderItem, // Include OrderItems
+          as: "orderItems", // Alias defined in the model association
+          include: [
+            {
+              model: Inventory, // Include Inventory model if you want inventory details
+              as: "inventoryItem", // Alias defined in the OrderItem model
+            },
+          ],
         },
       ],
-      ...options, // Pass the transaction here
     });
   }
 
-  async createOrder(data, options = {}) {
-    return await Order.create(data, options);
+
+  async findOrderById(orderId) {
+    return await Order.findByPk(orderId, { include: ["orderItems"] });
   }
 
-  async findOrderById(orderId, options = {}) {
-    return await Order.findByPk(orderId, {
-      include: ["OrderItems"],
-      ...options,
+  async findOrdersByClientId(clientId) {
+    return await Order.findAll({ where: { clientId },
+      include: ["orderItems"]
     });
+  }
+
+  async findAllOrders() {
+    return await Order.findAll({
+      include: [
+
+        {
+          model: OrderItem, // Include OrderItems
+          as: "orderItems", // Alias defined in the model association
+          include: [
+            {
+              model: Inventory, // Include Inventory model if you want inventory details
+              as: "inventoryItem", // Alias defined in the OrderItem model
+            },
+          ],
+        },
+      ],
+    });
+  }
+
+  async updateOrder(orderId, updates) {
+    return await Order.update(updates, { where: { id: orderId } });
+  }
+
+  async deleteOrder(orderId) {
+    return await Order.destroy({ where: { id: orderId } });
   }
 }
 

@@ -1,40 +1,57 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require('../../../core/database');
+const { DataTypes, Model } = require("sequelize");
+const sequelize = require("../../../core/database");
 
-const Status = ["pending", "paid", "canceled"]
-const Order = sequelize.define(
-  "Order",
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
+class Order extends Model {
+    static associate(models) {
+        this.hasMany(models.OrderItem, {
+            foreignKey: "orderId",
+            as: "orderItems",
+            onDelete: "CASCADE",
+        });
+        this.belongsTo(models.Client, {
+            foreignKey: "clientId",
+            as: "client",
+        });
+    }
+}
+
+Order.init(
+    {
+        id: {
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            primaryKey: true,
+        },
+        clientId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            references: {
+                model: "Clients", // Assuming the client table name
+                key: "id",
+            },
+        },
+        totalPrice: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false,
+            defaultValue: 0,
+            validate: {
+                min: 0,
+            },
+            comment: 'Total price of the order calculated based on order items',
+        },
+        paymentStatus: {
+            type: DataTypes.ENUM("PENDING", "PAID"),
+            defaultValue: "PENDING",
+            allowNull: false,
+        }
     },
-    clientId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      field: "client_id", // Maps to "client_id" in the database
-    },
-    status: {
-      type: DataTypes.ENUM("pending", "paid", "canceled"),
-      allowNull: false,
-      defaultValue: "pending",
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-      field: "created_at", // Maps to "created_at" in the database
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-      field: "updated_at", // Maps to "updated_at" in the database
-    },
-  },
-  {
-    tableName: "orders", // Explicitly set the table name
-    timestamps: true, // Enable Sequelize's automatic timestamps
-  }
+    {
+        sequelize,
+        modelName: "Order",
+        tableName: "Orders",
+        timestamps: true,
+        underscored: true,
+    }
 );
 
-module.exports = {Order, Status};
+module.exports = Order;
