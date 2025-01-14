@@ -55,6 +55,26 @@ class OrderController {
     }
   }
 
+  async getOrderById(req,res) {
+
+    const { id } = req.params;
+
+    try {
+      const orders = await OrderService.getOrderById(id);
+      res.status(200).json({
+        isSuccessful: true,
+        message: "Order retrieved successfully.",
+        data: orders,
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessful: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+  }
+
   async deleteOrder(req, res) {
     const { id } = req.params;
 

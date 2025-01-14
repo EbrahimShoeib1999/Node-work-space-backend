@@ -10,7 +10,6 @@ class AdminUserRepository {
     return await AdminUser.findByPk(id);
   }
 
-
   async findAllAdminUsers(query) {
     const whereCondition = query
         ? {
@@ -26,7 +25,6 @@ class AdminUserRepository {
 
     return await AdminUser.findAll({ where: whereCondition });
   }
-
 
   async deleteAdminUser(id) {
     return await AdminUser.destroy({ where: { id } });

@@ -54,6 +54,10 @@ class OrderService {
     return await OrderRepository.findAllOrders();
   }
 
+  async getOrderById(id){
+    return await OrderRepository.findOrderById(id);
+  }
+
   async deleteOrder(orderId) {
     const order = await OrderRepository.findOrderById(orderId);
     if (!order) throw new Error("Order not found.");
