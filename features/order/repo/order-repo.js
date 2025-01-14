@@ -24,12 +24,38 @@ class OrderRepository {
 
 
   async findOrderById(orderId) {
-    return await Order.findByPk(orderId, { include: ["orderItems"] });
+    return await Order.findByPk(orderId, {
+      include: [
+
+        {
+          model: OrderItem, // Include OrderItems
+          as: "orderItems", // Alias defined in the model association
+          include: [
+            {
+              model: Inventory, // Include Inventory model if you want inventory details
+              as: "inventoryItem", // Alias defined in the OrderItem model
+            },
+          ],
+        },
+      ],
+    });
   }
 
   async findOrdersByClientId(clientId) {
     return await Order.findAll({ where: { clientId },
-      include: ["orderItems"]
+      include: [
+
+        {
+          model: OrderItem, // Include OrderItems
+          as: "orderItems", // Alias defined in the model association
+          include: [
+            {
+              model: Inventory, // Include Inventory model if you want inventory details
+              as: "inventoryItem", // Alias defined in the OrderItem model
+            },
+          ],
+        },
+      ],
     });
   }
 
