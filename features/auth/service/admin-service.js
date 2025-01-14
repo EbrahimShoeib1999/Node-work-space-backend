@@ -52,6 +52,35 @@ class AdminUserService {
     return { token, user };
   }
 
+  async changePassword(id, oldPassword, newPassword, confirmNewPassword) {
+    try {
+      // Validate that the new password and confirmation match
+      if (newPassword !== confirmNewPassword) {
+        throw new Error("New password and confirmation do not match.");
+      }
+
+      // Fetch the user by ID
+      const user = await AdminUserRepository.findAdminUserById(id);
+      if (!user) {
+        throw new Error("User not found.");
+      }
+
+      // Validate the old password
+      const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
+      if (!isOldPasswordValid) {
+        throw new Error("Invalid old password.");
+      }
+
+      // Hash the new password
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update the user's password
+      return await AdminUserRepository.updateAdminUser(id, { password: hashedNewPassword });
+
+    } catch (error) {
+      throw new Error(error.message || "Failed to change password.");
+    }
+  }
 
   async getAdminUserById(id) {
     return await AdminUserRepository.findAdminUserById(id);
@@ -68,6 +97,41 @@ class AdminUserService {
   async updateAdminUser(id, update) {
     return await AdminUserRepository.updateAdminUser(id, update);
   }
+
+  async updateUserProfile(id, username, email) {
+    try {
+      // Validate inputs
+      if (!username && !email) {
+        throw new Error("At least one of username or email must be provided for update.");
+      }
+
+      // Fetch the user by ID
+      const user = await AdminUserRepository.findAdminUserById(id);
+      if (!user) {
+        throw new Error("User not found.");
+      }
+
+      // Check if email is already taken by another user
+      if (email) {
+        const emailExists = await AdminUserRepository.findAdminUserByEmail(email);
+        if (emailExists && emailExists.id !== id) {
+          throw new Error("Email is already in use.");
+        }
+      }
+
+      // Prepare the fields to update
+      const updateFields = {};
+      if (username) updateFields.username = username;
+      if (email) updateFields.email = email;
+
+      // Update the user profile
+      return await AdminUserRepository.updateAdminUser(id, updateFields);
+    } catch (error) {
+      throw new Error(error.message || "Failed to update user profile.");
+    }
+  }
+
+
 }
 
 module.exports = new AdminUserService();

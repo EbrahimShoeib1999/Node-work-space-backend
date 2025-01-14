@@ -52,12 +52,6 @@ const updateAdminUserValidationSchema = Joi.object({
         "string.empty": "Email is required.",
         "string.email": "Please provide a valid email address.",
     }),
-    password: Joi.string().min(8)
-        .optional() // Makes it optional if not provided
-        .messages({
-        "string.empty": "Password is required.",
-        "string.min": "Password must be at least 8 characters long.",
-    }),
     role: Joi.string()
         .valid(...Object.values(Roles))
         .optional() // Makes it optional if not provided
@@ -73,6 +67,44 @@ const updateAdminUserValidationSchema = Joi.object({
             "number.min": "Daily rate must be a positive number.",
         })
 });
+
+const updateAdminUserPasswordValidationSchema = Joi.object({
+    oldPassword: Joi.string().min(8)
+        .required() // Makes it optional if not provided
+        .messages({
+            "string.empty": "Password is required.",
+            "string.min": "Password must be at least 8 characters long.",
+        }),
+    newPassword: Joi.string().min(8)
+        .required() // Makes it optional if not provided
+        .messages({
+            "string.empty": "Password is required.",
+            "string.min": "Password must be at least 8 characters long.",
+        }),
+    confirmNewPassword: Joi.string().min(8)
+        .required() // Makes it optional if not provided
+        .messages({
+            "string.empty": "Password is required.",
+            "string.min": "Password must be at least 8 characters long.",
+        })
+});
+
+const updateAdminUserProfileValidationSchema = Joi.object({
+    username: Joi.string().min(3).max(30)
+        .optional() // Makes it optional if not provided
+        .messages({
+            "string.empty": "Username is required.",
+            "string.min": "Username must be at least 3 characters long.",
+            "string.max": "Username must not exceed 30 characters.",
+        }),
+    email: Joi.string().email()
+        .optional() // Makes it optional if not provided
+        .messages({
+            "string.empty": "Email is required.",
+            "string.email": "Please provide a valid email address.",
+        })
+});
+
 
 
 const adminUserLoginValidationSchema = Joi.object({
@@ -92,4 +124,6 @@ module.exports = {
   updateAdminUserValidationSchema,
   adminUserLoginValidationSchema,
   Roles,
+    updateAdminUserPasswordValidationSchema,
+    updateAdminUserProfileValidationSchema
 };

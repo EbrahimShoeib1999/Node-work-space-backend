@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { date } = require("joi");
 const ApiErrorCode = require("../../../core/api-error")
-const {adminUserValidationSchema,adminUserLoginValidationSchema,updateAdminUserValidationSchema} = require("../utils/admin-validation")
+const {adminUserValidationSchema,updateAdminUserProfileValidationSchema,updateAdminUserPasswordValidationSchema,adminUserLoginValidationSchema,updateAdminUserValidationSchema} = require("../utils/admin-validation")
 
 
 class AdminUserController {
@@ -243,6 +243,108 @@ class AdminUserController {
             });
         }
     }
+
+  async changePassword(req, res){
+      const { id } = req.params; // Extract the user ID from request parameters
+      const {oldPassword, newPassword, confirmNewPassword} = req.body; // Extract the updated fields from request body
+
+      const { error } = updateAdminUserPasswordValidationSchema.validate(req.body);
+
+      if(error) {
+          return res.status(401).json({
+              isSuccessfull: false,
+              message: "Validation error",
+              error: {
+                  errorCode : ApiErrorCode.validation,
+                  message : error.message
+              }
+          });
+      }
+
+
+      try {
+          // Call the update method in the service
+          const updatedUser = await AdminUserService.changePassword(id, oldPassword, newPassword, confirmNewPassword);
+
+          if (!updatedUser) {
+              return res.status(404).json({
+                  isSuccessfull: false,
+                  message: "Admin user not found",
+                  error: {
+                      errorCode: ApiErrorCode.notFound,
+                      message: "The user with the specified ID does not exist.",
+                  },
+              });
+          }
+
+          res.status(200).json({
+              isSuccessfull: true,
+              message: "Updated user password successfully.",
+              data: updatedUser,
+          });
+      } catch (error) {
+          console.error(error);
+          res.status(500).json({
+              isSuccessfull: false,
+              message: "Server error",
+              error: {
+                  errorCode: ApiErrorCode.unknownError,
+                  message: error.message,
+              },
+          });
+      }
+  }
+
+  async updateUserProfile(req,res){
+      const { id } = req.params; // Extract the user ID from request parameters
+      const {username,email} = req.body; // Extract the updated fields from request body
+
+      const { error } = updateAdminUserProfileValidationSchema.validate(req.body);
+
+      if(error) {
+          return res.status(401).json({
+              isSuccessfull: false,
+              message: "Validation error",
+              error: {
+                  errorCode : ApiErrorCode.validation,
+                  message : error.message
+              }
+          });
+      }
+
+
+      try {
+          // Call the update method in the service
+          const updatedUser = await AdminUserService.updateUserProfile(id, username,email);
+
+          if (!updatedUser) {
+              return res.status(404).json({
+                  isSuccessfull: false,
+                  message: "Admin user not found",
+                  error: {
+                      errorCode: ApiErrorCode.notFound,
+                      message: "The user with the specified ID does not exist.",
+                  },
+              });
+          }
+
+          res.status(200).json({
+              isSuccessfull: true,
+              message: "Updated user password successfully.",
+              data: updatedUser,
+          });
+      } catch (error) {
+          console.error(error);
+          res.status(500).json({
+              isSuccessfull: false,
+              message: "Server error",
+              error: {
+                  errorCode: ApiErrorCode.unknownError,
+                  message: error.message,
+              },
+          });
+      }
+  }
 
 }
 

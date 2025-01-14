@@ -21,5 +21,9 @@ router.delete("/:id", AdminUserController.delete);
 // update admin user
 router.put("/:id", AdminUserController.update);
 
+router.post("/profile/:id", AdminUserController.changePassword);
+
+router.put("/profile/:id", AdminUserController.updateUserProfile);
+
 
 module.exports = router;

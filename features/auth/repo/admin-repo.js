@@ -44,6 +44,11 @@ class AdminUserRepository {
     return await user.update(updates);
   }
 
+  async findAdminUserByEmail(email) {
+    return await AdminUser.findOne({ where: { email } });
+  }
+
+
 }
 
 module.exports = new AdminUserRepository();
