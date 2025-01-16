@@ -79,7 +79,7 @@ class ClientRepository {
           {
             model: Timer,
             where: { paymentStatus: "PENDING" },
-            required: false,
+            required: true,
           },
           {
             model: Order,
