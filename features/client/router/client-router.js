@@ -11,6 +11,8 @@ router.post("/", ClientController.create);
 // Get all clients
 router.get("/", ClientController.getAll);
 
+router.get("/active", ClientController.getAllActiveClients);
+
 // Get a specific client by ID
 router.get("/:id", ClientController.getById);
 

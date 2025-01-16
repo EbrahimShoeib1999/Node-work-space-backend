@@ -140,6 +140,25 @@ class ClientController {
     }
   }
 
+  async getAllActiveClients(req, res) {
+
+    try {
+      const clients = await ClientService.getClientsWithActiveTimers();
+      res.status(200).json({
+        isSuccessfull: true,
+        message: "Fetched all clients successfully.",
+        data: clients,
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessfull: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+
+  }
+
 }
 
 module.exports = new ClientController();

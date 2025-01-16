@@ -1,0 +1,11 @@
+class CashierService {
+
+
+    async getAllActiveSessions(){
+
+
+
+    }
+
+
+}

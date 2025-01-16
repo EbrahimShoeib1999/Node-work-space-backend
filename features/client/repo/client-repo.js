@@ -1,5 +1,9 @@
 const Client = require("../models/client");
 const { Op } = require("sequelize");
+const { Timer, PaymentStatuses } = require("../../timer/models/timer");
+const Order = require("../../order/models/order");
+const OrderItem= require("../../order/models/order-item");
+const Inventory= require("../../inventory/models/inventory");
 
 class ClientRepository {
   async createClient(data) {
@@ -65,6 +69,38 @@ class ClientRepository {
     })
 
     return Client.findByPk(id)
+
+  }
+
+  async getClientsWithActiveTimers() {
+
+      return await Client.findAll({
+        include: [
+          {
+            model: Timer,
+            where: { paymentStatus: "PENDING" },
+            required: false,
+          },
+          {
+            model: Order,
+            where: { paymentStatus: "PENDING" },
+            required: false,
+            include: [
+              {
+                model: OrderItem,
+                as: "orderItems",
+                include: [
+                  {
+                    model: Inventory,
+                    as: "inventoryItem",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
 
   }
 
