@@ -13,6 +13,8 @@ router.get("/", ClientController.getAll);
 
 router.get("/active", ClientController.getAllActiveClients);
 
+router.get("/active/:id", ClientController.getActiveClientById);
+
 // Get a specific client by ID
 router.get("/:id", ClientController.getById);
 

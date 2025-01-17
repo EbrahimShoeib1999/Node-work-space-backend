@@ -25,6 +25,10 @@ class ClientService {
     return await ClientRepository.getClientsWithActiveTimers()
   }
 
+  async getActiveClientById(id){
+    return await ClientRepository.getActiveClientById(id)
+  }
+
 }
 
 module.exports = new ClientService();

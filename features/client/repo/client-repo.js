@@ -104,6 +104,38 @@ class ClientRepository {
 
   }
 
+  async getActiveClientById(id) {
+
+    return await Client.findByPk(id,{
+      include: [
+        {
+          model: Timer,
+          where: { paymentStatus: "PENDING" },
+          required: false,
+        },
+        {
+          model: Order,
+          where: { paymentStatus: "PENDING" },
+          required: false,
+          include: [
+            {
+              model: OrderItem,
+              as: "orderItems",
+              include: [
+                {
+                  model: Inventory,
+                  as: "inventoryItem",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+
+  }
+
 }
 
 module.exports = new ClientRepository();

@@ -159,6 +159,26 @@ class ClientController {
 
   }
 
+  async getActiveClientById(req, res) {
+    const { id } = req.params;
+
+    try {
+      const clients = await ClientService.getActiveClientById(id);
+      res.status(200).json({
+        isSuccessfull: true,
+        message: "Fetched all clients successfully.",
+        data: clients,
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessfull: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+
+  }
+
 }
 
 module.exports = new ClientController();
