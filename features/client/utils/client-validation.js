@@ -1,5 +1,15 @@
 const Joi = require("joi");
 
+const payValidationSchema = Joi.object({
+  paymentMethod : Joi.string()
+      .valid('cash', 'visa')
+      .required()
+      .messages({
+        "any.only": "Invalid Payment Method. Must be one of cash, visa.",
+        "string.empty": "Payment Method is required.",
+      }),
+});
+
 // Validation schema
 const clientValidationSchema = Joi.object({
   name: Joi.string().min(3).max(50).required().messages({
@@ -23,4 +33,4 @@ const updateClientValidationSchema = Joi.object({
   })
 });
 
-module.exports = { clientValidationSchema,updateClientValidationSchema };
+module.exports = { clientValidationSchema,updateClientValidationSchema ,payValidationSchema};

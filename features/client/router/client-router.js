@@ -15,6 +15,8 @@ router.get("/active", ClientController.getAllActiveClients);
 
 router.get("/active/:id", ClientController.getActiveClientById);
 
+router.post("/active/:id/pay", ClientController.payForActiveClientTimersAndOrders);
+
 // Get a specific client by ID
 router.get("/:id", ClientController.getById);
 

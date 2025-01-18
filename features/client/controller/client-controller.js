@@ -1,7 +1,7 @@
 // ClientController
 const ClientService = require("../service/client-service");
 const ApiErrorCode = require("../../../core/api-error");
-const { clientValidationSchema ,updateClientValidationSchema} = require("../utils/client-validation");
+const { clientValidationSchema ,updateClientValidationSchema,payValidationSchema} = require("../utils/client-validation");
 
 class ClientController {
   async create(req, res) {
@@ -168,6 +168,39 @@ class ClientController {
         isSuccessfull: true,
         message: "Fetched all clients successfully.",
         data: clients,
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessfull: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+
+  }
+
+  async payForActiveClientTimersAndOrders(req,res){
+    const { id } = req.params;
+    const {paymentMethod} = req.body
+
+    const { error } = payValidationSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        isSuccessfull: false,
+        message: "Validation error",
+        error: {
+          errorCode: ApiErrorCode.validation,
+          message: error.message,
+        },
+      });
+    }
+
+    try {
+      const client = await ClientService.payForActiveClientTimersAndOrders(id,paymentMethod);
+      res.status(201).json({
+        isSuccessfull: true,
+        message: "Client created successfully.",
+        data: client,
       });
     } catch (err) {
       res.status(500).json({
