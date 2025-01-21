@@ -1,5 +1,6 @@
 const { Reservation } = require("../models/reservation");
 const {Op} = require("sequelize");
+
 class ReservationRepository {
     async createReservation(data) {
         try {
@@ -99,6 +100,52 @@ class ReservationRepository {
             throw new Error("Failed to retrieve reservations for the room.");
         }
     }
+
+    async getReservationStatistics() {
+        try {
+            const now = new Date();
+            const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+            // Count of reservations this month
+            const countThisMonth = await Reservation.count({
+                where: {
+                    fromDate: {
+                        [Op.gte]: startOfThisMonth,
+                    },
+                },
+            });
+
+            // Count of reservations last month
+            const countLastMonth = await Reservation.count({
+                where: {
+                    fromDate: {
+                        [Op.gte]: startOfLastMonth,
+                        [Op.lte]: endOfLastMonth,
+                    },
+                },
+            });
+
+            // Calculate growth percentage
+            let growthPercentage = 0;
+            if (countLastMonth > 0) {
+                growthPercentage = ((countThisMonth - countLastMonth) / countLastMonth) * 100;
+            } else if (countThisMonth > 0) {
+                growthPercentage = 100; // Consider it 100% growth if no reservations were made last month
+            }
+
+            return {
+                countThisMonth: countThisMonth || 0,
+                countLastMonth: countLastMonth || 0,
+                growthPercentage: growthPercentage.toFixed(2), // Rounded to 2 decimal places
+            };
+        } catch (error) {
+            console.error("Error fetching reservation statistics:", error);
+            throw new Error("Failed to fetch reservation statistics.");
+        }
+    }
+
 }
 
 module.exports = new ReservationRepository();

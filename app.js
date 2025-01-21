@@ -24,6 +24,7 @@ const roomRouter = require("./features/rooms/router/room-router");
 const reservationRouter = require("./features/reservations/router/reservation-router");
 const historyRouter = require("./features/history/router/history-router");
 const orderRouter = require("./features/order/router/order-router")
+const dashboardRouter = require("./features/dashborad/router/dashboard-router")
 
 app.use("/api/admin-users", adminUserRouter);
 app.use("/api/client", clientRouter);
@@ -35,6 +36,7 @@ app.use("/api/room", roomRouter);
 app.use("/api/reservation", reservationRouter);
 app.use("/api/history", historyRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/dashboard", dashboardRouter);
 
 // 404 Handler
 app.use((req, res, next) => {

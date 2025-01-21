@@ -44,6 +44,24 @@ class HistoryRepository {
             throw new Error("Failed to delete transaction history.");
         }
     }
+
+    async getLastFiveHistory() {
+        try {
+            return await History.findAll({
+                order: [["createdAt", "DESC"]], // Order by createdAt field in descending order
+                limit: 5, // Limit to the last 5 records
+                include: [
+                    {
+                        model: AdminUser,
+                        attributes: ["id", "username", "role"], // Fields to include from AdminUser
+                    },
+                ],
+            });
+        } catch (error) {
+            console.error("Error fetching last 5 transaction histories:", error);
+            throw new Error("Failed to fetch last 5 transaction histories.");
+        }
+    }
 }
 
 module.exports = new HistoryRepository();

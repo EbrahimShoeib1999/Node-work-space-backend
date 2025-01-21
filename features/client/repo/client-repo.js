@@ -44,9 +44,9 @@ class ClientRepository {
 
       // Return clients with pagination info
       return {
-        clients,
-        currentPage: page,
-        size,
+        data : clients,
+        currentPage: parseInt(page) || 1,
+        size : parseInt(size) || 1,
         totalCount,
         totalPages,
       };
@@ -115,6 +115,7 @@ class ClientRepository {
         },
         {
           model: Order,
+
           where: { paymentStatus: "PENDING" },
           required: false,
           include: [
@@ -135,6 +136,53 @@ class ClientRepository {
 
 
   }
+
+  async getUserStatistics() {
+    try {
+      const now = new Date();
+      const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+      // Total users in the database
+      const totalUsers = await Client.count();
+
+      // New users this month
+      const newUsersThisMonth = await Client.count({
+        where: {
+          createdAt: { [Op.gte]: startOfThisMonth },
+        },
+      });
+
+      // New users last month
+      const newUsersLastMonth = await Client.count({
+        where: {
+          createdAt: {
+            [Op.gte]: startOfLastMonth,
+            [Op.lte]: endOfLastMonth,
+          },
+        },
+      });
+
+      // Calculate percentage growth
+      let percentageGrowth = 0;
+      if (newUsersLastMonth > 0) {
+        percentageGrowth = ((newUsersThisMonth - newUsersLastMonth) / newUsersLastMonth) * 100;
+      } else if (newUsersThisMonth > 0) {
+        // If there were no users last month, treat this month's users as 100% growth
+        percentageGrowth = 100;
+      }
+
+      return {
+        totalUsers,
+        percentageGrowth: percentageGrowth.toFixed(2), // Keep it to 2 decimal places
+      };
+    } catch (error) {
+      console.error("Error fetching user statistics:", error);
+      throw new Error("Failed to fetch user statistics.");
+    }
+  }
+
 
 }
 

@@ -1,4 +1,5 @@
 const { Timer } = require("../models/timer");
+const {Op} = require("sequelize");
 
 class TimerRepository {
   async findById(timerId) {
@@ -76,6 +77,69 @@ class TimerRepository {
     } catch (error) {
       console.error("Error finding timers by client ID:", error);
       throw new Error("Failed to retrieve timers for the client.");
+    }
+  }
+
+  async getActiveTimersCount() {
+    try {
+      const count = await Timer.count({
+        where: {
+          timerStatus: "ACTIVE",
+        },
+      });
+      return count;
+    } catch (error) {
+      console.error("Error fetching active timers count:", error);
+      throw new Error("Failed to retrieve active timers count.");
+    }
+  }
+
+  /**
+   * Calculate the growth in the number of timers from the previous month.
+   * Includes both active and non-active timers.
+   */
+  async getTimersStatistics() {
+    try {
+      const now = new Date();
+      const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+      // Count timers for the current month
+      const currentMonthCount = await Timer.count({
+        where: {
+          createdAt: {
+            [Op.gte]: startOfCurrentMonth,
+          },
+        },
+      });
+
+      // Count timers for the last month
+      const lastMonthCount = await Timer.count({
+        where: {
+          createdAt: {
+            [Op.gte]: startOfLastMonth,
+            [Op.lt]: startOfCurrentMonth,
+          },
+        },
+      });
+
+      // Calculate growth rate
+      const growthRate =
+          lastMonthCount === 0
+              ? currentMonthCount > 0
+                  ? 100
+                  : 0
+              : ((currentMonthCount - lastMonthCount) / lastMonthCount) * 100;
+
+      return {
+        currentMonthCount,
+        lastMonthCount,
+        percentageGrowth: growthRate.toFixed(2),
+      };
+    } catch (error) {
+      console.error("Error calculating timers growth:", error);
+      throw new Error("Failed to calculate timers growth.");
     }
   }
 
