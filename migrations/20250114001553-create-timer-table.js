@@ -7,7 +7,7 @@ module.exports = {
     await queryInterface.createTable('Timers', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('gen_random_uuid()'), // Use `gen_random_uuid()` for PostgreSQL, adjust for other databases if necessary
+        defaultValue: Sequelize.UUIDV4, // Use `gen_random_uuid()` for PostgreSQL, adjust for other databases if necessary
         primaryKey: true,
         allowNull: false,
         comment: 'Primary key, unique identifier for each timer',

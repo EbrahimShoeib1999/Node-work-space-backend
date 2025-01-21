@@ -7,7 +7,7 @@ module.exports = {
     await queryInterface.createTable('Histories', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('gen_random_uuid()'), // Use default UUID generation if PostgreSQL, otherwise use Sequelize.UUIDV4
+        defaultValue: Sequelize.UUIDV4, // Use default UUID generation if PostgreSQL, otherwise use Sequelize.UUIDV4
         primaryKey: true,
         allowNull: false,
         comment: 'Primary key, unique identifier for each transaction',
