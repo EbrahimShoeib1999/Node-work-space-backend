@@ -36,8 +36,8 @@ class SupplierController {
     // Get all suppliers
     async getAll(req, res) {
         try {
-            const filters = req.query || {};
-            const suppliers = await SupplierService.getAllSuppliers(filters);
+            const {query,page,size} = req.query;
+            const suppliers = await SupplierService.getAllSuppliers(query,page,size);
             res.status(200).json({
                 isSuccessful: true,
                 message: "Fetched all suppliers successfully.",

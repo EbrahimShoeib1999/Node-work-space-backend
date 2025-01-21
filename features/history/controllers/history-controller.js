@@ -6,8 +6,8 @@ class HistoryController {
     // Get all transaction histories
     async getAll(req, res) {
         try {
-            const filters = req.query || {};
-            const histories = await HistoryService.getAllHistory(filters);
+            const {query,page,size} = req.query;
+            const histories = await HistoryService.getAllHistory(query,page,size);
             res.status(200).json({
                 isSuccessful: true,
                 message: "Fetched transaction histories successfully.",

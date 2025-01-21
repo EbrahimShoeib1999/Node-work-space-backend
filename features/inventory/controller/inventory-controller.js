@@ -108,8 +108,8 @@ class InventoryController {
 
   async getAllInventoryItems(req, res) {
     try {
-      const filters = req.query;
-      const inventoryItems = await InventoryService.getAllInventoryItems(filters);
+      const {query,page,size} = req.query;
+      const inventoryItems = await InventoryService.getAllInventoryItems(query,page,size);
       ResponseUtils.success(res, "Inventory items fetched successfully.", inventoryItems);
     } catch (error) {
       console.error('Error fetching inventory items:', error);

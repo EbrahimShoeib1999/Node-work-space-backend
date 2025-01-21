@@ -49,8 +49,8 @@ class TreasuryService {
         return await TreasuryRepository.getTransactionById(id)
     }
 
-    async getAllTransactions(filters = {}) {
-        return await TreasuryRepository.getAllTransactions(filters);
+    async getAllTransactions(query,page,size) {
+        return await TreasuryRepository.getAllTransactions(query,page,size);
     }
 
     async depositCash(amount) {

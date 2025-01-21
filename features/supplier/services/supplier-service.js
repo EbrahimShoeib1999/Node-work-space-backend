@@ -16,8 +16,8 @@ class SupplierService {
     }
 
     // Get all suppliers with optional filters
-    async getAllSuppliers(filters = {}) {
-        return await SupplierRepository.findAllSuppliers(filters);
+    async getAllSuppliers(query,page,size) {
+        return await SupplierRepository.findAllSuppliers(query,page,size);
     }
 
     // Update a supplier's information

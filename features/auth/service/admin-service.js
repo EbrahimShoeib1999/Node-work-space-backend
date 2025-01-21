@@ -86,8 +86,8 @@ class AdminUserService {
     return await AdminUserRepository.findAdminUserById(id);
   }
 
-  async getAllAdminUsers(query) {
-    return await AdminUserRepository.findAllAdminUsers(query);
+  async getAllAdminUsers(query,page,size) {
+    return await AdminUserRepository.findAllAdminUsers(query,page,size);
   }
 
   async deleteAdminUser(id) {

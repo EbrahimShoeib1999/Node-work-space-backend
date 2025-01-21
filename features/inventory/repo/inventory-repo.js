@@ -11,21 +11,48 @@ class InventoryRepository {
     return await Inventory.findByPk(id);
   }
 
-  async findAllInventoryItems(filters = {}) {
-    const { name, supplierId, unitType, minStock, maxStock, sortBy, sortOrder } = filters;
 
-    const where = {};
-    if (name) where.name = { [Op.iLike]: `%${name}%` }; // Case-insensitive partial match
-    if (supplierId) where.supplier_id = supplierId;
-    if (unitType) where.unit_type = unitType;
-    if (minStock) where.stock_quantity = { [Op.gte]: minStock };
-    if (maxStock) where.stock_quantity = { ...where.stock_quantity, [Op.lte]: maxStock };
+  async findAllInventoryItems(query = '', page = 1, size = 10) {
+  try {
+    // Calculate offset for pagination
+    const offset = (page - 1) * size;
 
-    const order = [];
-    if (sortBy) order.push([sortBy, sortOrder || 'ASC']); // Default to ascending order
+    // Dynamic search query
+    const whereClause = {};
+    if (query) {
+      whereClause[Op.or] = [
+        { name: { [Op.iLike]: `%${query}%` } }, // Search by name
+        { supplierId: { [Op.iLike]: `%${query}%` } }, // Search by supplierId
+        { unitType: { [Op.iLike]: `%${query}%` } }, // Search by unitType
+      ];
+    }
 
-    return await Inventory.findAll({ where, order });
+    // Fetch inventory items with dynamic search, pagination, and sorting
+    const inventoryItems = await Inventory.findAll({
+      where: whereClause,
+      limit: size,  // Number of records per page
+      offset,        // Skip records for pagination
+    });
+
+    // Get total count of inventory items that match the query for pagination
+    const totalCount = await Inventory.count({ where: whereClause });
+
+    // Calculate total pages for pagination
+    const totalPages = Math.ceil(totalCount / size);
+
+    // Return paginated data with dynamic search result
+    return {
+      data: inventoryItems,
+      currentPage: parseInt(page) || 1,
+      size: parseInt(size) || 10,
+      totalCount,
+      totalPages,
+    };
+  } catch (error) {
+    console.error("Error fetching inventory items:", error);
+    throw new Error("Failed to fetch inventory items.");
   }
+}
 
   async updateInventoryItem(id, updates) {
     const [affectedRows] = await Inventory.update(updates, { where: { id } });

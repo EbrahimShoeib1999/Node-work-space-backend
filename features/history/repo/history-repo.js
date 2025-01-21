@@ -1,24 +1,57 @@
 const History  = require("../models/history");
 const {AdminUser} = require("../../auth/models/admin-user")
+const {Op} = require("sequelize");
 
 class HistoryRepository {
     // Get all transaction histories with optional filters
-    async getAllHistory(filters = {}) {
-        try {
-            return await History.findAll({
-                where: filters ,
-                include: [
-                    {
-                        model: AdminUser,
-                        attributes: ["id", "username", "role"], // Fields to include from AdminUser
-                    },
-                ],
-            });
-        } catch (error) {
-            console.error("Error fetching transaction histories:", error);
-            throw new Error("Failed to fetch transaction histories.");
+
+    async getAllHistory(query, page = 1, size = 10) {
+    try {
+        // Calculate offset for pagination
+        const offset = (page - 1) * size;
+
+        // Dynamic search query
+        const whereClause = {};
+
+        if (query) {
+            whereClause[Op.or] = [
+                { action: { [Op.like]: `%${query}%` } },    // Search by action
+                { details: { [Op.like]: `%${query}%` } },   // Search by details
+            ];
         }
+
+        // Fetch histories with dynamic search and pagination
+        const histories = await History.findAll({
+            where: whereClause,
+            include: [
+                {
+                    model: AdminUser,
+                    attributes: ["id", "username", "role"], // Include specific fields from AdminUser
+                },
+            ],
+            limit: size,  // Number of records per page
+            offset: offset, // Skip records for pagination
+        });
+
+        // Get total count for pagination
+        const totalCount = await History.count({ where: whereClause });
+
+        // Calculate total pages
+        const totalPages = Math.ceil(totalCount / size);
+
+        // Return histories with pagination info
+        return {
+            data: histories,
+            currentPage: parseInt(page) || 1,
+            size: parseInt(size) || 10,
+            totalCount,
+            totalPages,
+        };
+    } catch (error) {
+        console.error("Error fetching transaction histories:", error);
+        throw new Error("Failed to fetch transaction histories.");
     }
+}
 
     // Create a new transaction history entry
     async createHistory(data) {

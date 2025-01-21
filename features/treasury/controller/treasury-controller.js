@@ -60,8 +60,8 @@ class TreasuryController {
 
     async getAllTransactions(req, res) {
         try {
-            const filters = req.query;
-            const transactions = await TreasuryService.getAllTransactions(filters);
+            const {query,page,size} = req.query;
+            const transactions = await TreasuryService.getAllTransactions(query,page,size);
             ResponseUtils.success(res, "Transactions fetched successfully.", transactions);
         } catch (error) {
             console.error('Error fetching all transactions:', error);

@@ -40,7 +40,7 @@ app.use("/api/dashboard", dashboardRouter);
 
 // 404 Handler
 app.use((req, res, next) => {
-  const error = new Error("Url route not found");
+  const error = new Error("Url route not found " + req.url);
   error.status = 404;
   next(error);
 });
@@ -48,7 +48,7 @@ app.use((req, res, next) => {
 // General Error Handler
 app.use((error, req, res, next) => {
   res.status(error.status || 500).json({
-    isSuccessfull: false,
+    isSuccessful: false,
     message: "There was an error",
     error: { errorCode: 0, message: error.message },
   });

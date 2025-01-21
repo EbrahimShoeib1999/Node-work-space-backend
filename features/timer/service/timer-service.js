@@ -83,8 +83,8 @@ class TimerService {
     return await TimerRepository.deleteTimer(timerId);
   }
 
-  async findAll(query) {
-    return await TimerRepository.findAll(query);
+  async findAll(query,page,size) {
+    return await TimerRepository.findAll(query,page,size);
   }
 
   async pay(timerId,paymentMethod) {

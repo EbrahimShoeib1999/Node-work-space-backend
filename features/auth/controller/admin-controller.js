@@ -104,9 +104,9 @@ class AdminUserController {
 
     try {
 
-      const query = req.query.query;
+      const {query,page,size} = req.query;
 
-      const adminUsers = await AdminUserService.getAllAdminUsers(query);
+      const adminUsers = await AdminUserService.getAllAdminUsers(query,page,size);
       res.status(201).json({
         isSuccessfull: true,
         message: "Got all users successfully.",

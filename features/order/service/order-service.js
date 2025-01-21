@@ -50,8 +50,8 @@ class OrderService {
     return await OrderRepository.findOrdersByClientId(clientId);
   }
 
-  async getAllOrders() {
-    return await OrderRepository.findAllOrders();
+  async getAllOrders(query,page,size) {
+    return await OrderRepository.findAllOrders(query,page,size);
   }
 
   async getOrderById(id){

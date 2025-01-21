@@ -144,7 +144,10 @@ class TimerController {
 
     async findAll(req, res) {
         try {
-            const result = await TimerService.findAll();
+
+            const {query,page,size} = req.query;
+
+            const result = await TimerService.findAll(query,page,size);
 
             res.status(200).json({
                 isSuccessful: true,

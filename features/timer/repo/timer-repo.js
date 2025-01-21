@@ -1,5 +1,6 @@
 const { Timer } = require("../models/timer");
 const {Op} = require("sequelize");
+const Client = require('../../client/models/client')
 
 class TimerRepository {
   async findById(timerId) {
@@ -11,14 +12,57 @@ class TimerRepository {
     }
   }
 
-  async findAll(query) {
+
+  async findAll(query = '', page = 1, size = 10) {
     try {
-      return await Timer.findAll();
+      // Calculate offset for pagination
+      const offset = (page - 1) * size;
+
+      // Dynamic search query
+      const whereClause = {};
+      if (query) {
+        whereClause[Op.or] = [
+          { id: { [Op.iLike]: `%${query}%` } },  // Search by timer ID
+          { timerStatus: { [Op.iLike]: `%${query}%` } },  // Search by timer status
+          { paymentStatus: { [Op.iLike]: `%${query}%` } },  // Search by payment status
+          { '$client.name$': { [Op.iLike]: `%${query}%` } },  // Search by client name (assuming you have a 'name' field in the Client model)
+        ];
+      }
+
+      // Fetch timers with dynamic search, pagination, and include associated Client details
+      const timers = await Timer.findAll({
+        where: whereClause,
+        limit: size,  // Number of records per page
+        offset,        // Skip records for pagination
+        include: [
+          {
+            model: Client,  // Include Client model to fetch client details
+            as: 'client',
+            attributes: ['id', 'name'], // Only include 'id' and 'name' from Client
+          },
+        ],
+      });
+
+      // Get total count of timers that match the query for pagination
+      const totalCount = await Timer.count({ where: whereClause });
+
+      // Calculate total pages for pagination
+      const totalPages = Math.ceil(totalCount / size);
+
+      // Return paginated data with dynamic search result
+      return {
+        data: timers,
+        currentPage: parseInt(page) || 1,
+        size: parseInt(size) || 10,
+        totalCount,
+        totalPages,
+      };
     } catch (error) {
       console.error("Error finding timers with query:", error);
       throw new Error("Failed to retrieve timers.");
     }
   }
+
 
   async updateTimer(timerId, updates) {
     try {

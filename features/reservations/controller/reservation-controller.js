@@ -42,7 +42,9 @@ class ReservationController {
     // Get all reservations
     async getAll(req, res) {
         try {
-            const reservations = await ReservationService.getAllReservations(req.query);
+            const {query,page,size} = req.query;
+
+            const reservations = await ReservationService.getAllReservations(query,page,size);
             res.status(200).json({
                 isSuccessful: true,
                 message: "Fetched all reservations successfully.",

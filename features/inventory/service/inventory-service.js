@@ -96,8 +96,8 @@ class InventoryService {
     });
   }
 
-  async getAllInventoryItems(filters) {
-    return await InventoryRepository.findAllInventoryItems(filters);
+  async getAllInventoryItems(query,page,size) {
+    return await InventoryRepository.findAllInventoryItems(query,page,size);
   }
 
   async deleteInventoryItem(id) {

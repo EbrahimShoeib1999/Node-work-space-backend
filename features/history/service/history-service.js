@@ -2,9 +2,9 @@ const TransactionHistoryRepository = require("../repo/history-repo");
 
 class TransactionHistoryService {
     // Fetch all transaction histories with optional filters
-    async getAllHistory(filters = {}) {
+    async getAllHistory( query,page,size) {
         try {
-            return await TransactionHistoryRepository.getAllHistory(filters);
+            return await TransactionHistoryRepository.getAllHistory(query,page,size);
         } catch (error) {
             console.error("Error in getAllHistory service:", error);
             throw new Error("Failed to retrieve transaction histories.");

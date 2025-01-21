@@ -12,8 +12,48 @@ class TreasuryRepository {
         return await Treasury.findByPk(id);
     }
 
-    async getAllTransactions(filters = {}) {
-        return await Treasury.findAll({ where: filters });
+    async getAllTransactions(query = '', page = 1, size = 10) {
+        try {
+            // Calculate offset for pagination
+            const offset = (page - 1) * size;
+
+            // Dynamic search query
+            const whereClause = {};
+            if (query) {
+                whereClause[Op.or] = [
+                    { transactionType: { [Op.iLike]: `%${query}%` } },  // Search by transaction type
+                    { specificType: { [Op.iLike]: `%${query}%` } },    // Search by specific transaction type
+                    { description: { [Op.iLike]: `%${query}%` } },     // Search by description
+                    { paymentMethod: { [Op.iLike]: `%${query}%` } },   // Search by payment method
+                    { date: { [Op.iLike]: `%${query}%` } },            // Search by transaction date
+                ];
+            }
+
+            // Fetch transactions with dynamic search, pagination
+            const transactions = await Treasury.findAll({
+                where: whereClause,
+                limit: size,  // Number of records per page
+                offset,        // Skip records for pagination
+            });
+
+            // Get total count of transactions that match the query for pagination
+            const totalCount = await Treasury.count({ where: whereClause });
+
+            // Calculate total pages for pagination
+            const totalPages = Math.ceil(totalCount / size);
+
+            // Return paginated data with dynamic search result
+            return {
+                data: transactions,
+                currentPage: parseInt(page) || 1,
+                size: parseInt(size) || 10,
+                totalCount,
+                totalPages,
+            };
+        } catch (error) {
+            console.error("Error fetching transactions with query:", error);
+            throw new Error("Failed to retrieve transactions.");
+        }
     }
 
     async getLastTransaction() {

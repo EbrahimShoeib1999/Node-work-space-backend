@@ -51,8 +51,8 @@ class ReservationService {
         return updatedReservation
     }
 
-    async getAllReservations(filters) {
-        return await ReservationRepository.findAllReservations(filters);
+    async getAllReservations(query,page,size) {
+        return await ReservationRepository.findAllReservations(query,page,size);
     }
 
     async getReservationsByClientId(clientId) {
