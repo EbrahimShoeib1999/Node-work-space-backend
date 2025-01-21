@@ -7,10 +7,12 @@ const Order = require("../features/order/models/order");
 const OrderItem = require("../features/order/models/order-item");
 const Client = require("../features/client/models/client")
 const Inventory = require("../features/inventory/models/inventory");
-const Timer = require("../features/timer/models/timer");
+const {Timer} = require("../features/timer/models/timer");
+const {Reservation} = require("../features/reservations/models/reservation");
+const Room = require("../features/rooms/models/room");
 
 const models
-    = { AdminUser, History ,Order, OrderItem,Client,Inventory,Timer};
+    = { AdminUser,Room,History ,Order, OrderItem,Reservation,Client,Inventory,Timer,};
 
 
 // Initialize models and associations
@@ -19,6 +21,15 @@ Object.values(models).forEach((model) => {
         model.associate(sequelize.models);
     }
 });
+
+// sequelize.sync({ force: true ,alter : true})
+//
+//     .then(() => {
+//         console.log("Database synced successfully!");
+//     })
+//     .catch((err) => {
+//         console.error("Error syncing database:", err);
+//     });
 
 // Export models for use in other parts of the app
 module.exports = models;

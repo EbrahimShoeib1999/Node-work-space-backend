@@ -6,7 +6,12 @@ const PaymentStatuses = {
     PAID: "PAID",
 };
 
-class Reservation extends Model {}
+class Reservation extends Model {
+    static associate(models) {
+        Reservation.belongsTo(models.Client, {foreignKey: "clientId",});
+        Reservation.belongsTo(models.Room, {foreignKey: "roomId",});
+    }
+}
 
 Reservation.init(
     {

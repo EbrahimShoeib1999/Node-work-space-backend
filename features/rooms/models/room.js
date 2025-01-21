@@ -1,7 +1,11 @@
 const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../../../core/database");
 
-class Room extends Model {}
+class Room extends Model {
+    static associate(models) {
+        Room.hasMany(models.Reservation, { foreignKey: "roomId" });
+    }
+}
 
 Room.init(
     {

@@ -3,6 +3,7 @@ const {Op} = require("sequelize");
 const Room = require("../../rooms/models/room");
 const Client = require("../../client/models/client");
 
+
 class ReservationRepository {
     async createReservation(data) {
         try {
@@ -39,12 +40,10 @@ class ReservationRepository {
             include: [
                 {
                     model: Client,  // Include Client model to fetch client details
-                    as: 'client',
                     attributes: ['id', 'name'], // Only include the 'id' and 'name' fields from Client
                 },
                 {
                     model: Room,  // Include Room model to fetch room details
-                    as: 'room',
                     attributes: ['id', 'name'], // Only include the 'id' and 'name' fields from Room
                 },
             ],
@@ -66,7 +65,7 @@ class ReservationRepository {
         };
     } catch (error) {
         console.error("Error fetching reservations:", error);
-        throw new Error("Failed to fetch reservations.");
+        throw new Error("Failed to fetch reservations, " + error.message);
     }
 }
 
