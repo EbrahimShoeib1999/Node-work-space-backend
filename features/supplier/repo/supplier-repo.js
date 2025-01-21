@@ -36,12 +36,12 @@ class SupplierRepository {
             where: whereClause,
             limit: size,  // Number of records per page
             offset,        // Skip records for pagination
-            include: [
-                {
-                    model: Inventory,  // Include Inventory model to fetch related inventory details
-                    as: 'inventoryItems',  // Alias used in Supplier-Inventory association
-                }
-            ],
+            // include: [
+            //     {
+            //         model: Inventory,  // Include Inventory model to fetch related inventory details
+            //         as: 'inventoryItems',  // Alias used in Supplier-Inventory association
+            //     }
+            // ],
         });
 
         // Get total count of suppliers that match the query for pagination
