@@ -65,10 +65,4 @@ Inventory.init(
     }
 );
 
-// Define the association: An inventory item belongs to a supplier
-// Inventory.belongsTo(Supplier, {
-//     foreignKey: 'supplierId', // Reference to the supplierId field
-//     as: 'supplier',           // Alias for the relation
-// });
-
 module.exports = Inventory;
