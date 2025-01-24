@@ -1,5 +1,5 @@
 const Room = require("../models/room");
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
 const Client = require("../../client/models/client");
 
 class RoomRepository {
@@ -23,14 +23,22 @@ class RoomRepository {
             if (query) {
                 whereClause[Op.or] = [
                     { name: { [Op.like]: `%${query}%` } }, // Search by name
-                    { capacity: { [Op.like]: `%${query}%` } }, // Search by contactInfo\
-                    { status: { [Op.like]: `%${query}%` } }, // Search by contactInfo
-                    { hourlyRate: { [Op.like]: `%${query}%` } }, // Search by contactInfo
-
+                    Sequelize.where(
+                        Sequelize.cast(Sequelize.col("capacity"), "TEXT"),
+                        { [Op.like]: `%${query}%` }
+                    ), // Partial match for capacity
+                    Sequelize.where(
+                        Sequelize.cast(Sequelize.col("status"), "TEXT"),
+                        { [Op.like]: `%${query}%` }
+                    ), // Partial match for status
+                    Sequelize.where(
+                        Sequelize.cast(Sequelize.col("hourly_rate"), "TEXT"),
+                        { [Op.like]: `%${query}%` }
+                    ), // Partial match for hourlyRate
                 ];
             }
 
-            // Fetch clients with dynamic search and pagination
+            // Fetch rooms with dynamic search and pagination
             const rooms = await Room.findAll({
                 where: whereClause,
                 limit: size,   // Number of records per page
@@ -43,17 +51,17 @@ class RoomRepository {
             // Calculate total pages
             const totalPages = Math.ceil(totalCount / size);
 
-            // Return clients with pagination info
+            // Return rooms with pagination info
             return {
-                data : rooms,
+                data: rooms,
                 currentPage: parseInt(page) || 1,
-                size : parseInt(size) || 1,
+                size: parseInt(size) || 1,
                 totalCount,
                 totalPages,
             };
         } catch (error) {
-            console.error("Error fetching clients:", error);
-            throw new Error("Failed to fetch clients.");
+            console.error("Error fetching rooms:", error);
+            throw new Error("Failed to fetch rooms.");
         }
     }
 
