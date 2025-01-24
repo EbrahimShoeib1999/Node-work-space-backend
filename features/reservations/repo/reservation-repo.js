@@ -1,5 +1,5 @@
 const { Reservation } = require("../models/reservation");
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
 const Room = require("../../rooms/models/room");
 const Client = require("../../client/models/client");
 
@@ -17,57 +17,86 @@ class ReservationRepository {
 
 
     async findAllReservations(query = '', page = 1, size = 10) {
-    try {
-        // Calculate offset for pagination
-        const offset = (page - 1) * size;
+        try {
+            // Calculate offset for pagination
+            const offset = (page - 1) * size;
 
-        // Dynamic search query
-        const whereClause = {};
-        if (query) {
-            whereClause[Op.or] = [
-                { id: { [Op.iLike]: `%${query}%` } },  // Search by reservation ID
-                { paymentStatus: { [Op.iLike]: `%${query}%` } },  // Search by payment status
-                { '$client.name$': { [Op.iLike]: `%${query}%` } },  // Search by client name (assuming you have a 'name' field in the Client model)
-                { '$room.name$': { [Op.iLike]: `%${query}%` } }, // Search by room name (assuming you have a 'name' field in the Room model)
-            ];
+            // Dynamic search query
+            const whereClause = {};
+            const clientWhere = {}; // For filtering Client model
+            const roomWhere = {};  // For filtering Room model
+
+            if (query) {
+                whereClause[Op.or] = [
+                    Sequelize.where(
+                        Sequelize.cast(Sequelize.col("Reservation.id"), "TEXT"),
+                        { [Op.iLike]: `%${query}%` }
+                    ), // Search by reservation ID
+                    Sequelize.where(
+                        Sequelize.cast(Sequelize.col("Reservation.payment_status"), "TEXT"),
+                        { [Op.iLike]: `%${query}%` }
+                    ), // Search by payment status
+                ];
+
+                // Add search conditions for Client and Room
+                clientWhere.name = { [Op.iLike]: `%${query}%` }; // Search by client name
+                roomWhere.name = { [Op.iLike]: `%${query}%` };   // Search by room name
+            }
+
+            // Fetch reservations with dynamic search, pagination, and include associated Client and Room details
+            const reservations = await Reservation.findAll({
+                where: whereClause,
+                limit: size, // Number of records per page
+                offset,      // Skip records for pagination
+                include: [
+                    {
+                        model: Client, // Include Client model to fetch client details
+                        attributes: ['id', 'name'], // Only include 'id' and 'name' fields
+                        where: clientWhere, // Apply dynamic search filter for Client
+                        required: !!query, // Join only if query is provided
+                    },
+                    {
+                        model: Room, // Include Room model to fetch room details
+                        attributes: ['id', 'name'], // Only include 'id' and 'name' fields
+                        where: roomWhere, // Apply dynamic search filter for Room
+                        required: !!query, // Join only if query is provided
+                    },
+                ],
+            });
+
+            // Get total count of reservations that match the query for pagination
+            const totalCount = await Reservation.count({
+                where: whereClause,
+                include: [
+                    {
+                        model: Client,
+                        where: clientWhere,
+                        required: !!query,
+                    },
+                    {
+                        model: Room,
+                        where: roomWhere,
+                        required: !!query,
+                    },
+                ],
+            });
+
+            // Calculate total pages for pagination
+            const totalPages = Math.ceil(totalCount / size);
+
+            // Return paginated data with dynamic search result
+            return {
+                data: reservations,
+                currentPage: parseInt(page, 10) || 1,
+                size: parseInt(size, 10) || 10,
+                totalCount,
+                totalPages,
+            };
+        } catch (error) {
+            console.error("Error fetching reservations:", error);
+            throw new Error("Failed to fetch reservations, " + error.message);
         }
-
-        // Fetch reservations with dynamic search, pagination, and include associated Client and Room details
-        const reservations = await Reservation.findAll({
-            where: whereClause,
-            limit: size,  // Number of records per page
-            offset,        // Skip records for pagination
-            include: [
-                {
-                    model: Client,  // Include Client model to fetch client details
-                    attributes: ['id', 'name'], // Only include the 'id' and 'name' fields from Client
-                },
-                {
-                    model: Room,  // Include Room model to fetch room details
-                    attributes: ['id', 'name'], // Only include the 'id' and 'name' fields from Room
-                },
-            ],
-        });
-
-        // Get total count of reservations that match the query for pagination
-        const totalCount = await Reservation.count({ where: whereClause });
-
-        // Calculate total pages for pagination
-        const totalPages = Math.ceil(totalCount / size);
-
-        // Return paginated data with dynamic search result
-        return {
-            data: reservations,
-            currentPage: parseInt(page) || 1,
-            size: parseInt(size) || 10,
-            totalCount,
-            totalPages,
-        };
-    } catch (error) {
-        console.error("Error fetching reservations:", error);
-        throw new Error("Failed to fetch reservations, " + error.message);
     }
-}
 
 
     async findReservationById(reservationId) {
