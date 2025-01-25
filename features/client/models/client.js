@@ -4,7 +4,7 @@ const sequelize = require("../../../core/database");
 class Client extends Model {
   // Static method for defining associations
   static associate(models) {
-    Client.hasMany(models.Order, { foreignKey: "clientId" });
+    Client.hasMany(models.Order, { foreignKey: "clientId"});
     Client.hasMany(models.Timer, { foreignKey: "clientId" })
     Client.hasMany(models.Reservation, { foreignKey: "clientId" });
   }

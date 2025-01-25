@@ -1,6 +1,6 @@
 const History  = require("../models/history");
 const {AdminUser} = require("../../auth/models/admin-user")
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
 
 class HistoryRepository {
     // Get all transaction histories with optional filters
@@ -15,7 +15,10 @@ class HistoryRepository {
 
         if (query) {
             whereClause[Op.or] = [
-                { action: { [Op.like]: `%${query}%` } },    // Search by action
+                Sequelize.where(
+                    Sequelize.cast(Sequelize.col("action"), "TEXT"),
+                    { [Op.iLike]: `%${query}%` }
+                ), // Search by payment status
                 { details: { [Op.like]: `%${query}%` } },   // Search by details
             ];
         }

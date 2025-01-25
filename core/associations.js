@@ -12,7 +12,7 @@ const {Reservation} = require("../features/reservations/models/reservation");
 const Room = require("../features/rooms/models/room");
 
 const models
-    = { AdminUser,Room,History ,Order, OrderItem,Reservation,Client,Inventory,Timer,};
+    = { AdminUser,Room,History ,Inventory, OrderItem,Client,Order,Reservation,Timer,};
 
 
 // Initialize models and associations
@@ -32,4 +32,5 @@ Object.values(models).forEach((model) => {
 //     });
 
 // Export models for use in other parts of the app
+
 module.exports = models;

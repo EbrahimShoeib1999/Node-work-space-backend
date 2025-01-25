@@ -23,24 +23,17 @@ class ReservationRepository {
 
             // Dynamic search query
             const whereClause = {};
-            const clientWhere = {}; // For filtering Client model
-            const roomWhere = {};  // For filtering Room model
 
             if (query) {
                 whereClause[Op.or] = [
                     Sequelize.where(
-                        Sequelize.cast(Sequelize.col("Reservation.id"), "TEXT"),
-                        { [Op.iLike]: `%${query}%` }
-                    ), // Search by reservation ID
-                    Sequelize.where(
-                        Sequelize.cast(Sequelize.col("Reservation.payment_status"), "TEXT"),
+                        Sequelize.cast(Sequelize.col("payment_status"), "TEXT"),
                         { [Op.iLike]: `%${query}%` }
                     ), // Search by payment status
-                ];
+                    { '$Client.name$': { [Op.iLike]: `%${query}%` } }, // Correctly reference Client.name
+                    { '$Room.name$': { [Op.iLike]: `%${query}%` } } // Correctly reference Client.name
 
-                // Add search conditions for Client and Room
-                clientWhere.name = { [Op.iLike]: `%${query}%` }; // Search by client name
-                roomWhere.name = { [Op.iLike]: `%${query}%` };   // Search by room name
+                ];
             }
 
             // Fetch reservations with dynamic search, pagination, and include associated Client and Room details
@@ -52,14 +45,10 @@ class ReservationRepository {
                     {
                         model: Client, // Include Client model to fetch client details
                         attributes: ['id', 'name'], // Only include 'id' and 'name' fields
-                        where: clientWhere, // Apply dynamic search filter for Client
-                        required: !!query, // Join only if query is provided
                     },
                     {
                         model: Room, // Include Room model to fetch room details
                         attributes: ['id', 'name'], // Only include 'id' and 'name' fields
-                        where: roomWhere, // Apply dynamic search filter for Room
-                        required: !!query, // Join only if query is provided
                     },
                 ],
             });
@@ -70,13 +59,9 @@ class ReservationRepository {
                 include: [
                     {
                         model: Client,
-                        where: clientWhere,
-                        required: !!query,
                     },
                     {
                         model: Room,
-                        where: roomWhere,
-                        required: !!query,
                     },
                 ],
             });

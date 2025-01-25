@@ -3,6 +3,7 @@ const ApiErrorCode = require("../../../core/api-error");
 const { supplierValidationSchema,updateSupplierValidationSchema  } = require("../utils/supplier-validation");
 
 class SupplierController {
+
     // Create a new supplier
     async create(req, res) {
         const { error } = supplierValidationSchema.validate(req.body);

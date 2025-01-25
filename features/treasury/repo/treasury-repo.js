@@ -21,19 +21,20 @@ class TreasuryRepository {
             const whereClause = {};
             if (query) {
                 whereClause[Op.or] = [
-                    { transactionType: { [Op.iLike]: `%${query}%` } },  // Search by transaction type
-                    { specificType: { [Op.iLike]: `%${query}%` } },    // Search by specific transaction type
-                    { description: { [Op.iLike]: `%${query}%` } },     // Search by description
-                    { paymentMethod: { [Op.iLike]: `%${query}%` } },   // Search by payment method
-                    { date: { [Op.iLike]: `%${query}%` } },            // Search by transaction date
+                    { description: { [Op.iLike]: `%${query}%` } }, // Search by description
+                    ...(this.isValidTransactionType(query) ? [{ transactionType: query }] : []), // Search by transactionType
+                    ...(this.isValidSpecificType(query) ? [{ specificType: query }] : []), // Search by specificType
+                    ...(this.isValidPaymentMethod(query) ? [{ paymentMethod: query }] : []), // Search by paymentMethod
+                    ...(this.isValidDate(query) ? [{ date: { [Op.eq]: query } }] : []), // Exact match for date
                 ];
             }
 
-            // Fetch transactions with dynamic search, pagination
+
+            // Fetch transactions with dynamic search and pagination
             const transactions = await Treasury.findAll({
                 where: whereClause,
-                limit: size,  // Number of records per page
-                offset,        // Skip records for pagination
+                limit: size, // Number of records per page
+                offset, // Skip records for pagination
             });
 
             // Get total count of transactions that match the query for pagination
@@ -43,17 +44,56 @@ class TreasuryRepository {
             const totalPages = Math.ceil(totalCount / size);
 
             // Return paginated data with dynamic search result
+
             return {
                 data: transactions,
-                currentPage: parseInt(page) || 1,
-                size: parseInt(size) || 10,
+                currentPage: parseInt(page, 10) || 1,
+                size: parseInt(size, 10) || 10,
                 totalCount,
                 totalPages,
             };
         } catch (error) {
-            console.error("Error fetching transactions with query:", error);
-            throw new Error("Failed to retrieve transactions.");
+            console.error('Error fetching transactions with query:', error);
+            throw new Error('Failed to retrieve transactions.');
         }
+    }
+
+// Helper function to validate transactionType
+    isValidTransactionType(value) {
+        const validTransactionTypes = ['income', 'expense'];
+        return validTransactionTypes.includes(value);
+    }
+
+// Helper function to validate specificType
+    isValidSpecificType(value) {
+        const validSpecificTypes = [
+            'sales',
+            'suppliers payment',
+            'salary payment',
+            'rent',
+            'utilities',
+            'maintenance',
+            'timer',
+            'order',
+            'reservation',
+            'cash deposit',
+            'cash withdrawal',
+            'other',
+        ];
+        return validSpecificTypes.includes(value);
+    }
+
+    // Helper function to validate paymentMethod
+    isValidPaymentMethod(value) {
+        const validPaymentMethods = ['cash', 'visa'];
+        return validPaymentMethods.includes(value);
+    }
+
+    // Helper function to validate date
+    isValidDate(value) {
+        // Check if value is a valid date format (YYYY-MM-DD)
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        return dateRegex.test(value);
     }
 
     async getLastTransaction() {

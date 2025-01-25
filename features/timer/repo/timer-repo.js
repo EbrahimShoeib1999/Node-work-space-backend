@@ -1,5 +1,5 @@
 const { Timer } = require("../models/timer");
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
 const Client = require('../../client/models/client')
 
 class TimerRepository {
@@ -20,31 +20,53 @@ class TimerRepository {
 
       // Dynamic search query
       const whereClause = {};
+
       if (query) {
-        whereClause[Op.or] = [
-          { id: { [Op.iLike]: `%${query}%` } },  // Search by timer ID
-          { timerStatus: { [Op.iLike]: `%${query}%` } },  // Search by timer status
-          { paymentStatus: { [Op.iLike]: `%${query}%` } },  // Search by payment status
-          { '$client.name$': { [Op.iLike]: `%${query}%` } },  // Search by client name (assuming you have a 'name' field in the Client model)
-        ];
+        const orConditions = [];
+
+        // Check if query is a valid UUID
+        if (this.isValidUUID(query)) {
+          orConditions.push({ id: query }); // Exact match for UUID
+        }
+
+        // Add other searchable fields
+        orConditions.push(
+            Sequelize.where(
+                Sequelize.cast(Sequelize.col('timer_status'), 'TEXT'),
+                { [Op.iLike]: `%${query}%` }
+            ),
+            Sequelize.where(
+                Sequelize.cast(Sequelize.col('payment_status'), 'TEXT'),
+                { [Op.iLike]: `%${query}%` }
+            ),
+            { '$Client.name$': { [Op.iLike]: `%${query}%` } } // Correctly reference Client.name
+        );
+
+        whereClause[Op.or] = orConditions;
       }
 
       // Fetch timers with dynamic search, pagination, and include associated Client details
       const timers = await Timer.findAll({
         where: whereClause,
-        limit: size,  // Number of records per page
-        offset,        // Skip records for pagination
+        limit: size, // Number of records per page
+        offset, // Skip records for pagination
         include: [
           {
-            model: Client,  // Include Client model to fetch client details
-            as: 'client',
+            model: Client, // Ensure the Client model is included
             attributes: ['id', 'name'], // Only include 'id' and 'name' from Client
           },
         ],
       });
 
       // Get total count of timers that match the query for pagination
-      const totalCount = await Timer.count({ where: whereClause });
+      const totalCount = await Timer.count({
+        where: whereClause,
+        include: [
+          {
+            model: Client, // Ensure the same include for counting
+          },
+        ],
+      });
 
       // Calculate total pages for pagination
       const totalPages = Math.ceil(totalCount / size);
@@ -52,17 +74,22 @@ class TimerRepository {
       // Return paginated data with dynamic search result
       return {
         data: timers,
-        currentPage: parseInt(page) || 1,
-        size: parseInt(size) || 10,
+        currentPage: parseInt(page, 10) || 1,
+        size: parseInt(size, 10) || 10,
         totalCount,
         totalPages,
       };
     } catch (error) {
-      console.error("Error finding timers with query:", error);
-      throw new Error("Failed to retrieve timers.");
+      console.error('Error finding timers with query:', error);
+      throw new Error('Failed to retrieve timers.');
     }
   }
 
+  // Helper function to check if a string is a valid UUID
+  isValidUUID(value) {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(value);
+  }
 
   async updateTimer(timerId, updates) {
     try {
