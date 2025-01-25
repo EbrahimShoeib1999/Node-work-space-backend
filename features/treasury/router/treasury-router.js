@@ -9,6 +9,9 @@ router.post('/', TreasuryController.createTransaction);
 // Get the last transaction
 router.get('/info', TreasuryController.getTreasuryInfo);
 
+// analyze all transactions with optional filters
+router.get('/analyze', TreasuryController.analyzeTransaction);
+
 // Get a transaction by ID
 router.get('/:id', TreasuryController.getTransactionById);
 

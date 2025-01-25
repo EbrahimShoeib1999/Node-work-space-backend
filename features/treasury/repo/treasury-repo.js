@@ -1,6 +1,6 @@
 
 const Treasury = require("../models/treasury");
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
 
 class TreasuryRepository {
 
@@ -12,6 +12,69 @@ class TreasuryRepository {
         return await Treasury.findByPk(id);
     }
 
+    async analyzeTransaction(
+        from = null,
+        to = null,
+        transactionType = null,
+        specificType = null
+    ) {
+        try {
+            // Set default dates if not provided
+            // Set default dates if not provided
+            const now = new Date(); // Current date and time
+            const defaultTo = to || now; // Use exact current timestamp
+            const defaultFrom = from || new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days ago from now
+
+            // Build the where clause for filtering transactions
+            const whereClause = {
+                createdAt: { // Query using `createdAt` instead of `date`
+                    [Op.between]: [defaultFrom, defaultTo],
+                },
+            };
+
+            // Only include `transactionType` in the filter if it's explicitly provided
+            if (transactionType) {
+                whereClause.transactionType = transactionType;
+            }
+
+            // Only include `specificType` in the filter if it's explicitly provided
+            if (specificType) {
+                whereClause.specificType = specificType;
+            }
+
+            // Fetch records and aggregate the totals
+            const results = await Treasury.findAll({
+                where: whereClause,
+            });
+
+            console.log(whereClause);
+
+            // Calculate totals
+            const totalIncome = results
+                .filter((record) => record.transactionType === 'income')
+                .reduce((sum, record) => sum + parseFloat(record.amount), 0);
+
+            const totalExpense = results
+                .filter((record) => record.transactionType === 'expense')
+                .reduce((sum, record) => sum + parseFloat(record.amount), 0);
+
+            const netProfit = totalIncome - totalExpense;
+
+            // Return aggregated data
+            return {
+                totalIncome: totalIncome.toFixed(2),
+                totalExpense: totalExpense.toFixed(2),
+                netProfit: netProfit.toFixed(2),
+                treasuryRecords: results,
+            };
+        } catch (error) {
+            console.error('Error analyzing transactions:', error.message);
+            throw Error('Error analyzing transactions: ' + error.message);
+        }
+    }
+
+
+
     async getAllTransactions(query = '', page = 1, size = 10) {
         try {
             // Calculate offset for pagination
@@ -22,10 +85,16 @@ class TreasuryRepository {
             if (query) {
                 whereClause[Op.or] = [
                     { description: { [Op.iLike]: `%${query}%` } }, // Search by description
-                    ...(this.isValidTransactionType(query) ? [{ transactionType: query }] : []), // Search by transactionType
-                    ...(this.isValidSpecificType(query) ? [{ specificType: query }] : []), // Search by specificType
-                    ...(this.isValidPaymentMethod(query) ? [{ paymentMethod: query }] : []), // Search by paymentMethod
-                    ...(this.isValidDate(query) ? [{ date: { [Op.eq]: query } }] : []), // Exact match for date
+                    Sequelize.where(
+                        Sequelize.cast(Sequelize.col('transaction_type'), 'TEXT'),
+                        { [Op.iLike]: `%${query}%` }
+                    ),Sequelize.where(
+                        Sequelize.cast(Sequelize.col('specific_type'), 'TEXT'),
+                        { [Op.iLike]: `%${query}%` }
+                    ),Sequelize.where(
+                        Sequelize.cast(Sequelize.col('payment_method'), 'TEXT'),
+                        { [Op.iLike]: `%${query}%` }
+                    ),
                 ];
             }
 

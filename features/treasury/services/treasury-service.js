@@ -49,6 +49,15 @@ class TreasuryService {
         return await TreasuryRepository.getTransactionById(id)
     }
 
+    async analyzeTransaction(
+        from = null,
+        to = null,
+        transactionType = null,
+        specificType = null
+    ){
+        return await TreasuryRepository.analyzeTransaction(from, to, transactionType,specificType)
+    }
+
     async getAllTransactions(query,page,size) {
         return await TreasuryRepository.getAllTransactions(query,page,size);
     }

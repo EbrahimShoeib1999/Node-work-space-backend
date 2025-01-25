@@ -58,6 +58,23 @@ class TreasuryController {
         }
     }
 
+    async analyzeTransaction(req, res) {
+        try {
+            const {from, to, transactionType,specificType} = req.query;
+
+            const transactions = await TreasuryService.analyzeTransaction(from, to, transactionType,specificType);
+            ResponseUtils.success(res, "Transactions fetched successfully.", transactions);
+        } catch (error) {
+            console.error('Error fetching all transactions:', error);
+            ResponseUtils.error(
+                res,
+                ApiErrorCode.unknownError,
+                error.message,
+                500
+            );
+        }
+    }
+
     async getAllTransactions(req, res) {
         try {
             const {query,page,size} = req.query;
