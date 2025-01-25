@@ -127,44 +127,6 @@ class TreasuryRepository {
         }
     }
 
-// Helper function to validate transactionType
-    isValidTransactionType(value) {
-        const validTransactionTypes = ['income', 'expense'];
-        return validTransactionTypes.includes(value);
-    }
-
-// Helper function to validate specificType
-    isValidSpecificType(value) {
-        const validSpecificTypes = [
-            'sales',
-            'suppliers payment',
-            'salary payment',
-            'rent',
-            'utilities',
-            'maintenance',
-            'timer',
-            'order',
-            'reservation',
-            'cash deposit',
-            'cash withdrawal',
-            'other',
-        ];
-        return validSpecificTypes.includes(value);
-    }
-
-    // Helper function to validate paymentMethod
-    isValidPaymentMethod(value) {
-        const validPaymentMethods = ['cash', 'visa'];
-        return validPaymentMethods.includes(value);
-    }
-
-    // Helper function to validate date
-    isValidDate(value) {
-        // Check if value is a valid date format (YYYY-MM-DD)
-        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-        return dateRegex.test(value);
-    }
-
     async getLastTransaction() {
         return await Treasury.findOne({
             order: [['createdAt', 'DESC']],

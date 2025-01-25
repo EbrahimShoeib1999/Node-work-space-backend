@@ -66,9 +66,6 @@ class OrderService {
     await OrderRepository.deleteOrder(orderId);
   }
 
-  /**
-   * Add an order item to an existing order if the order is still pending.
-   */
   async addOrderItem(orderId, orderItemData) {
     const order = await OrderRepository.findOrderById(orderId);
     if (!order) throw new Error("Order not found.");
@@ -92,9 +89,6 @@ class OrderService {
     return await OrderRepository.findOrderById(orderId);
   }
 
-  /**
-   * Remove an order item if the order itself is still pending.
-   */
   async removeOrderItem(orderItemId) {
     // Find the order item by ID
     const orderItem = await OrderItemRepository.findOrderItemById(orderItemId);
@@ -121,6 +115,14 @@ class OrderService {
 
     // Return the updated order
     return await OrderRepository.findOrderById(order.id);
+  }
+
+  async findPreparingOrderItems() {
+    return await OrderItemRepository.findPreparingOrderItems()
+  }
+
+  async markOrderAsReady(orderId) {
+    return await OrderItemRepository.markOrderAsReady(orderId)
   }
 
 }

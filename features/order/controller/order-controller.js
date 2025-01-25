@@ -201,6 +201,43 @@ class OrderController {
       });
     }
   }
+
+  async findPreparingOrderItems(req, res) {
+    try {
+      const orders = await OrderService.findPreparingOrderItems();
+      res.status(200).json({
+        isSuccessful: true,
+        message: "Orders retrieved successfully.",
+        data: orders,
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessful: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+  }
+
+  async markOrderAsReady(req, res) {
+    const {id} = req.query;
+
+    try {
+      const orders = await OrderService.markOrderAsReady(id);
+      res.status(200).json({
+        isSuccessful: true,
+        message: "Orders retrieved successfully.",
+        data: orders,
+      });
+    } catch (err) {
+      res.status(500).json({
+        isSuccessful: false,
+        message: "Server error",
+        error: { errorCode: ApiErrorCode.unknownError, message: err.message },
+      });
+    }
+  }
+
 }
 
 module.exports = new OrderController();

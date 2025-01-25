@@ -1,5 +1,7 @@
 const TreasuryRepository = require("../repo/treasury-repo");
 const Treasury = require("../models/treasury");
+
+
 class TreasuryService {
 
     async createTransaction(data) {
@@ -61,6 +63,8 @@ class TreasuryService {
     async getAllTransactions(query,page,size) {
         return await TreasuryRepository.getAllTransactions(query,page,size);
     }
+
+
 
     async depositCash(amount) {
         // Get the last transaction to fetch the current cash in the machine
@@ -141,6 +145,8 @@ class TreasuryService {
         }
     }
 
+
+
     async getCashAndTodayVisaIncome() {
         try {
             // Fetch the latest treasury record for cash in machine
@@ -214,6 +220,8 @@ class TreasuryService {
             throw new Error(`Failed to fetch today's incomes, expenses, and profit: ${error.message}`);
         }
     }
+
+
 
     async createTimerTransaction(amount,paymentMethod){
         await this.createTransaction({

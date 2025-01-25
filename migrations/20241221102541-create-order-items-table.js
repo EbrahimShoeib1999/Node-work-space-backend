@@ -34,6 +34,12 @@ module.exports = {
           min: 1,
         },
       },
+      status: {
+        type: Sequelize.ENUM('preparing', 'ready'), // Adding the status field
+        allowNull: false,
+        defaultValue: 'preparing', // Default value is 'preparing'
+        comment: "Indicates whether the item is preparing or ready to serve",
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -46,7 +52,11 @@ module.exports = {
       },
     });
   },
+
   down: async (queryInterface, Sequelize) => {
+    // Drop the status field first before dropping the table
+    await queryInterface.removeColumn('OrderItems', 'status');
+
     await queryInterface.dropTable('OrderItems');
   },
 };

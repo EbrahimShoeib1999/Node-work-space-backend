@@ -45,6 +45,12 @@ OrderItem.init(
                 min: 1,
             },
         },
+        status: {
+            type: DataTypes.ENUM("preparing", "ready"), // Status field
+            allowNull: false,
+            defaultValue: "preparing", // Default status is "preparing"
+            comment: "Indicates whether the item is preparing or ready to serve.",
+        },
     },
     {
         sequelize,
