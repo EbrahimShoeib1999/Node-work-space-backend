@@ -48,6 +48,7 @@ const treasuryValidationSchema = Joi.object({
     }),
 
     adminUserId: Joi.when('specificType', {
+        is: 'salary payment',
         then: Joi
             .string()
             .guid({ version: 'uuidv4' })
