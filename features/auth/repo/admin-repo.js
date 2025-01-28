@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, Sequelize} = require('sequelize');
 const AdminUser = require("../models/admin-user").AdminUser;
 
 class AdminUserRepository {
@@ -21,9 +21,10 @@ class AdminUserRepository {
             [Op.or]: [
               { username: { [Op.like]: `%${query}%` } },
               { email: { [Op.like]: `%${query}%` } },
-              { role: { [Op.like]: `%${query}%` } },
-              { balance: { [Op.like]: `%${query}%` } },
-              { dailyRate: { [Op.like]: `%${query}%` } },
+              Sequelize.where(
+                  Sequelize.cast(Sequelize.col('role'), 'TEXT'),
+                  { [Op.iLike]: `%${query}%` }
+              ),
             ],
           }
           : {}; // If no query is provided, return all records
