@@ -1,7 +1,7 @@
 const TreasuryRepository = require("../repo/treasury-repo");
 const Treasury = require("../models/treasury");
-
-
+const AdminUserRepository = require("../../auth/repo/admin-repo");
+const SupplierRepository = require("../../supplier/repo/supplier-repo");
 class TreasuryService {
 
     async createTransaction(data) {
@@ -23,6 +23,15 @@ class TreasuryService {
                 } else if (data.transactionType === 'expense') {
                     cashInMachineAfter -= parseFloat(data.amount);
                 }
+            }
+
+            const isIncome = data.transactionType === 'income';
+            const amount = isIncome ? data.amount : -data.amount;
+
+            if (data.specificType === 'suppliers payment') {
+                await SupplierRepository.updateSupplierBalance(data.supplierId, amount);
+            } else if (data.specificType === 'salary payment') {
+                await AdminUserRepository.updateUserBalance(data.adminUserId, amount);
             }
 
             // Calculate the new balance after the transaction

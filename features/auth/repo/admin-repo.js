@@ -72,6 +72,15 @@ class AdminUserRepository {
     return await user.update(updates);
   }
 
+  async updateUserBalance(id, amount) {
+    const user = await this.findAdminUserById(id);
+    if (!user) {
+      throw new Error(`Admin user not found with ID: ${id}`);
+    }
+    const newBalance = parseFloat(user.balance) + parseFloat(amount);
+    return await user.update({ balance: newBalance });
+  }
+
   async findAdminUserByEmail(email) {
     return await AdminUser.findOne({ where: { email } });
   }

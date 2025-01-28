@@ -30,13 +30,30 @@ const treasuryValidationSchema = Joi.object({
     description: Joi.string()
         .max(255)
         .optional()
-    ,
+        ,
     paymentMethod : Joi.string()
         .valid(
             "cash",
             "visa"
         )
         .required()
+    ,
+    supplierId: Joi.when('specificType', {
+        is: 'suppliers payment',
+        then: Joi
+            .string()
+            .guid({ version: 'uuidv4' })
+            .required(), // `supplierId` is required when `specificType` is `suppliers payment`
+        otherwise: Joi.forbidden() // Not allowed for other `specificType` values
+    }),
+
+    adminUserId: Joi.when('specificType', {
+        then: Joi
+            .string()
+            .guid({ version: 'uuidv4' })
+            .required(), // `supplierId` is required when `specificType` is `suppliers payment`
+        otherwise: Joi.forbidden() // Not allowed for other `specificType` values
+    }),
 });
 
 const cashMachineValidationSchema = Joi.object({
