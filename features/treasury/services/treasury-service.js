@@ -78,6 +78,7 @@ class TreasuryService {
             const transactionData = {
                 transactionType: 'income',
                 specificType: 'cash deposit',
+                paymentMethod : "cash",
                 amount: amount,
                 cashInMachineBefore: lastTransaction.cashInMachineAfter,
                 cashInMachineAfter: updatedCashInMachine,
@@ -87,10 +88,12 @@ class TreasuryService {
             // Save the deposit transaction
             return await TreasuryRepository.createTransaction(transactionData);
         } else {
+
             // Handle the case when there is no previous transaction (first deposit)
             const transactionData = {
                 transactionType: 'income',
                 specificType: 'cash deposit',
+                paymentMethod : "cash",
                 amount: amount,
                 cashInMachineBefore: 0,
                 cashInMachineAfter: amount,
@@ -117,6 +120,7 @@ class TreasuryService {
                 const transactionData = {
                     transactionType: 'expense',
                     specificType: 'cash withdrawal',
+                    paymentMethod : "cash",
                     amount: amount,
                     cashInMachineBefore: lastTransaction.cashInMachineAfter,
                     cashInMachineAfter: updatedCashInMachine,
