@@ -220,10 +220,10 @@ class OrderController {
   }
 
   async markOrderAsReady(req, res) {
-    const {id} = req.query;
+    const {orderItemId} = req.query;
 
     try {
-      const orders = await OrderService.markOrderAsReady(id);
+      const orders = await OrderService.markOrderAsReady(orderItemId);
       res.status(200).json({
         isSuccessful: true,
         message: "Orders retrieved successfully.",
