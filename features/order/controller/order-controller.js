@@ -220,7 +220,7 @@ class OrderController {
   }
 
   async markOrderAsReady(req, res) {
-    const {orderItemId} = req.query;
+    const {orderItemId} = req.params;
 
     try {
       const orders = await OrderService.markOrderAsReady(orderItemId);

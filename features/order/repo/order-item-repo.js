@@ -26,6 +26,8 @@ class OrderItemRepository {
 
 
   async markOrderAsReady(orderId) {
+
+    console.log('markOrderAsRead', orderId);
     const orderItem = await OrderItem.findByPk(orderId)
 
     if(!orderItem) {

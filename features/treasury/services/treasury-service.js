@@ -26,7 +26,7 @@ class TreasuryService {
             }
 
             const isIncome = data.transactionType === 'income';
-            const amount = isIncome ? data.amount : -data.amount;
+            const amount = isIncome ? -data.amount : data.amount;
 
             if (data.specificType === 'suppliers payment') {
                 await SupplierRepository.updateSupplierBalance(data.supplierId, amount);
