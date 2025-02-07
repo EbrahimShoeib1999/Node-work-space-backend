@@ -9,7 +9,7 @@ cron.schedule("0 0 * * *", async () => {
 
         // Increment balances for all users with a dailyRate
         await AdminUser.update(
-            { balance: Sequelize.literal("balance + daily_rate") },
+            { balance: Sequelize.literal("balance - daily_rate") },
             { where: { dailyRate: { [Sequelize.Op.ne]: null } } }
         );
 

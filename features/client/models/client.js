@@ -22,6 +22,7 @@ Client.init(
       name: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
       },
       contactInfo: {
         type: DataTypes.STRING,

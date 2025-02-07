@@ -60,6 +60,7 @@ class OrderItemRepository {
   async deleteOrderItem(orderItemId) {
     return await OrderItem.destroy({ where: { id: orderItemId } });
   }
+
 }
 
 module.exports = new OrderItemRepository();
