@@ -2,9 +2,10 @@ const OrderRepository = require("../repo/order-repo");
 const OrderItemRepository = require("../repo/order-item-repo");
 const InventoryService = require("../../inventory/service/inventory-service");
 const TreasuryService = require("../../treasury/services/treasury-service");
+const HistoryService = require("../../history/service/history-service");
 
 class OrderService {
-  async createOrder(clientId, orderItems) {
+  async createOrder(clientId, orderItems,userId) {
     const totalPrice = await Promise.all(
         orderItems.map(async (item) => {
           const inventory = await InventoryService.findInventoryItemById(item.inventoryItemId);
@@ -15,6 +16,8 @@ class OrderService {
         })
     ).then((prices) => prices.reduce((sum, price) => sum + price, 0));
 
+    await HistoryService.createHistory(userId,"ORDERED","order has been placed");
+
     return await OrderRepository.createOrder({
       clientId,
       totalPrice,
@@ -23,7 +26,7 @@ class OrderService {
     });
   }
 
-  async payOrder(orderId, paymentMethod) {
+  async payOrder(orderId, paymentMethod,userId) {
 
     const order = await OrderRepository.findOrderById(orderId);
 
@@ -43,6 +46,8 @@ class OrderService {
 
     await OrderRepository.updateOrder(orderId, { paymentStatus: "PAID", paymentMethod });
 
+    await HistoryService.createHistory(userId,"ORDER_PAID","order has been paid");
+
     return order;
   }
 
@@ -58,10 +63,12 @@ class OrderService {
     return await OrderRepository.findOrderById(id);
   }
 
-  async deleteOrder(orderId) {
+  async deleteOrder(orderId,userId) {
     const order = await OrderRepository.findOrderById(orderId);
     if (!order) throw new Error("Order not found.");
     if (order.paymentStatus !== "PENDING") throw new Error("Cannot delete a paid order.");
+
+    await HistoryService.createHistory(userId,"ORDER_DELETED","order has been deleted");
 
     await OrderRepository.deleteOrder(orderId);
   }

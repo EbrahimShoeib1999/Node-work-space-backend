@@ -21,8 +21,9 @@ class OrderController {
     }
 
     try {
+
       const { clientId, orderItems } = req.body;
-      const order = await OrderService.createOrder(clientId, orderItems);
+      const order = await OrderService.createOrder(clientId, orderItems,req.user.id);
       res.status(201).json({
         isSuccessful: true,
         message: "Order created successfully.",
@@ -81,7 +82,7 @@ class OrderController {
     const { id } = req.params;
 
     try {
-      const orders = await OrderService.deleteOrder(id);
+      const orders = await OrderService.deleteOrder(id,req.user.id);
       res.status(200).json({
         isSuccessful: true,
         message: "Orders retrieved successfully.",
@@ -114,7 +115,7 @@ class OrderController {
 
     try {
       const { paymentMethod } = req.body;
-      const order = await OrderService.payOrder(id, paymentMethod);
+      const order = await OrderService.payOrder(id, paymentMethod,req.user.id);
       res.status(200).json({
         isSuccessful: true,
         message: "Order paid successfully.",

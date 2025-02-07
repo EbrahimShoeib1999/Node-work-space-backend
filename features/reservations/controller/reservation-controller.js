@@ -24,7 +24,7 @@ class ReservationController {
         }
 
         try {
-            const reservation = await ReservationService.createReservation(req.body);
+            const reservation = await ReservationService.createReservation(req.body,req.user.id);
             res.status(201).json({
                 isSuccessful: true,
                 message: "Reservation created successfully.",
@@ -111,7 +111,7 @@ class ReservationController {
         }
 
         try {
-            const reservation = await ReservationService.payForReservation(req.params.id,req.body.paymentMethod);
+            const reservation = await ReservationService.payForReservation(req.params.id,req.body.paymentMethod,req.user.id);
             res.status(200).json({
                 isSuccessful: true,
                 message: "Reservation paid successfully.",
@@ -141,7 +141,7 @@ class ReservationController {
         // }
 
         try {
-            const result = await ReservationService.cancelReservation(req.params.id);
+            const result = await ReservationService.cancelReservation(req.params.id,req.user.id);
             if (!result) {
                 return res.status(404).json({
                     isSuccessful: false,

@@ -19,7 +19,7 @@ class TimerController {
                 });
             }
 
-            const timer = await TimerService.createTimer(req.body);
+            const timer = await TimerService.createTimer(req.body,req.user.id);
             res.status(201).json({
                 isSuccessful: true,
                 message: "Timer created successfully.",
@@ -76,7 +76,7 @@ class TimerController {
     async end(req, res) {
         const { id } = req.params;
         try {
-            const timer = await TimerService.endTimer(id);
+            const timer = await TimerService.endTimer(id,req.user.id);
             res.status(200).json({
                 isSuccessful: true,
                 message: "Timer ended successfully.",
@@ -127,7 +127,7 @@ class TimerController {
                 });
             }
 
-            const timer = await TimerService.pay(id,req.body.paymentMethod);
+            const timer = await TimerService.pay(id,req.body.paymentMethod,req.user.id);
             res.status(200).json({
                 isSuccessful: true,
                 message: "Timer paid successfully.",
@@ -186,7 +186,7 @@ class TimerController {
     async delete(req, res) {
         const { id } = req.params;
         try {
-            const result = await TimerService.deleteTimer(id);
+            const result = await TimerService.deleteTimer(id,req.user.id);
             if (!result) {
                 return res.status(404).json({
                     isSuccessful: false,

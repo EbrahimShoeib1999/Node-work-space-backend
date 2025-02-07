@@ -45,7 +45,6 @@ class AdminUserService {
       { expiresIn: "24h" } // Token expires in 1 hour
     );
 
-    console.log(user.id);
 
     await HistoryService.createHistory(user.id,"USER_LOGIN","User logged in");
 

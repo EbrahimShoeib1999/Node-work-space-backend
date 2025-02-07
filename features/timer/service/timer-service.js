@@ -1,11 +1,18 @@
 const TimerRepository = require("../repo/timer-repo");
 const { TimerStatuses, PaymentStatuses } = require("../models/timer");
 const TreasuryService = require("../../treasury/services/treasury-service")
+const HistoryService = require("../../history/service/history-service");
 
 class TimerService {
 
-  async createTimer(data) {
-    return await TimerRepository.createTimer(data);
+  async createTimer(data,userId) {
+
+    const timer =  await TimerRepository.createTimer(data);
+
+    await this.startTimer(timer.id)
+    await HistoryService.createHistory(userId,"SESSION_STARTED","timer has started");
+
+    return timer
   }
 
   async startTimer(timerId) {
@@ -43,7 +50,7 @@ class TimerService {
     });
   }
 
-  async endTimer(timerId) {
+  async endTimer(timerId,userId) {
     const timer = await TimerRepository.findById(timerId);
     if (!timer) throw new Error("Timer not found.");
 
@@ -60,6 +67,8 @@ class TimerService {
 
     const totalActiveTime = timer.totalActiveTime + activeDuration;
     const totalPrice = (totalActiveTime / 3600) * timer.hourlyRate;
+
+    await HistoryService.createHistory(userId,"SESSION_ENDED","timer has ended");
 
     return await TimerRepository.updateTimer(timerId, {
       timerStatus: TimerStatuses.ENDED,
@@ -79,7 +88,9 @@ class TimerService {
     };
   }
 
-  async deleteTimer(timerId) {
+  async deleteTimer(timerId,userId) {
+    await HistoryService.createHistory(userId,"SESSION_DELETED","timer has been deleted");
+
     return await TimerRepository.deleteTimer(timerId);
   }
 
@@ -87,7 +98,7 @@ class TimerService {
     return await TimerRepository.findAll(query,page,size);
   }
 
-  async pay(timerId,paymentMethod) {
+  async pay(timerId,paymentMethod,userId) {
     const timer = await TimerRepository.findById(timerId);
     if (!timer) throw new Error("Timer not found.");
 
@@ -98,6 +109,8 @@ class TimerService {
     const updatedTimer = await TimerRepository.updatePaymentStatus(timerId, PaymentStatuses.PAID);
 
     await TreasuryService.createTimerTransaction(updatedTimer.totalPrice,paymentMethod)
+
+    await HistoryService.createHistory(userId,"SESSION_PAID","timer has been paid");
 
     return updatedTimer
   }

@@ -13,6 +13,7 @@ const Roles = {
   CASHIER: "CASHIER",
   EMPLOYEE: "EMPLOYEE",
   MANAGER: "MANAGER",
+    CHIEF : "CHIEF"
 };
 
 AdminUser.init(

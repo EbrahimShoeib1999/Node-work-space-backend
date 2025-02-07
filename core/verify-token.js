@@ -1,32 +1,36 @@
 const jwt = require("jsonwebtoken");
-const ApiErrorCode = require("../errors/apiError");
+const ApiErrorCode = require("../core/api-error");
+require("dotenv").config();
 
 // Middleware to verify token
 function verifyToken(req, res, next) {
-  const token = req.headers.token;
+  const authHeader = req.headers.authorization;
 
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-      req.user = decoded; // Attach decoded token to the request
-      next();
-    } catch (error) {
-      res.status(400).json({
-        isSuccessful: false,
-        message: "This user is not authorized",
-        error: {
-          errorCode: ApiErrorCode.authorization,
-          message: error.message,
-        },
-      });
-    }
-  } else {
-    res.status(400).json({
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(400).json({
       isSuccessful: false,
       message: "This user is not authorized",
       error: {
         errorCode: ApiErrorCode.authorization,
-        message: "You must provide a token to execute the method",
+        message: "You must provide a valid Bearer token to execute the method",
+      },
+    });
+  }
+
+  // Extract the token (remove "Bearer ")
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // Attach decoded token to the request
+    next();
+  } catch (error) {
+    res.status(400).json({
+      isSuccessful: false,
+      message: "Invalid or expired token",
+      error: {
+        errorCode: ApiErrorCode.authorization,
+        message: error.message,
       },
     });
   }
