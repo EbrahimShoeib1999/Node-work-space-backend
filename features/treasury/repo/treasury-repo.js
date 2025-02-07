@@ -104,6 +104,8 @@ class TreasuryRepository {
                 where: whereClause,
                 limit: size, // Number of records per page
                 offset, // Skip records for pagination
+                order: [['created_at', 'DESC']], // Sort in descending order (latest first)
+
             });
 
             // Get total count of transactions that match the query for pagination

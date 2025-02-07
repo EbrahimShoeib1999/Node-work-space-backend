@@ -34,6 +34,7 @@ class ClientRepository {
         where: whereClause,
         limit: size,   // Number of records per page
         offset: offset, // Skip records for pagination
+        order: [['createdAt', 'DESC']], // Sort in descending order (latest first)
       });
 
       // Get total count for pagination

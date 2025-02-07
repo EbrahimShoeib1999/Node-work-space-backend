@@ -26,6 +26,7 @@ class HistoryRepository {
         // Fetch histories with dynamic search and pagination
         const histories = await History.findAll({
             where: whereClause,
+            order: [['created_at', 'DESC']], // Sort in descending order (latest first)
             include: [
                 {
                     model: AdminUser,

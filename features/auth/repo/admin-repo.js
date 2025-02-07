@@ -34,6 +34,8 @@ class AdminUserRepository {
         where: whereCondition,
         limit: size,   // Number of records per page
         offset: offset, // Skip records for pagination
+        order: [['created_at', 'DESC']], // Sort in descending order (latest first)
+
       });
 
       // Get total count for pagination

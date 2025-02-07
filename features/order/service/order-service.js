@@ -35,7 +35,7 @@ class OrderService {
         order.orderItems.map(async (item) => {
           console.log(item.inventoryItemId)
 
-          await InventoryService.consumeInventoryStock(item.inventoryItemId, -item.quantity);
+          await InventoryService.consumeInventoryStock(item.inventoryItemId, item.quantity);
         })
     );
 

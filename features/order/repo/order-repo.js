@@ -100,6 +100,7 @@ class OrderRepository {
         where: whereClause,
         limit: size,  // Number of records per page
         offset,        // Skip records for pagination
+        order: [['createdAt', 'DESC']], // Sort in descending order (latest first)
         include: [
           {
             model: OrderItem, // Include OrderItems
@@ -123,6 +124,7 @@ class OrderRepository {
       // Get total count of orders that match the query for pagination
       const totalCount = await Order.count({
         where: whereClause ,
+
         include: [
           {
             model: Client,  // Include Client model to fetch client details

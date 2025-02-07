@@ -39,6 +39,8 @@ class ReservationRepository {
             // Fetch reservations with dynamic search, pagination, and include associated Client and Room details
             const reservations = await Reservation.findAll({
                 where: whereClause,
+                order: [['created_at', 'DESC']], // Sort in descending order (latest first)
+
                 limit: size, // Number of records per page
                 offset,      // Skip records for pagination
                 include: [
