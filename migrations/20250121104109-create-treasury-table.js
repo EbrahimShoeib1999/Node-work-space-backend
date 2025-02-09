@@ -1,5 +1,6 @@
 'use strict';
 
+const {DataTypes} = require("sequelize");
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -69,6 +70,17 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
         comment: 'Cash available in the cashier machine after the transaction',
+      },
+      visa_in_machine_before: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0,
+        comment: 'visa available in the cashier machine before the transaction',
+      },
+      visa_in_machine_after: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false,
+        comment: 'visa available in the cashier machine after the transaction',
       },
       payment_method: {
         type: Sequelize.ENUM('cash', 'visa'),

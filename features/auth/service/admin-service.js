@@ -94,6 +94,9 @@ class AdminUserService {
   }
 
   async updateAdminUser(id, update) {
+    if(update.password){
+      update.password = await bcrypt.hash(update.password, 10);
+    }
     return await AdminUserRepository.updateAdminUser(id, update);
   }
 

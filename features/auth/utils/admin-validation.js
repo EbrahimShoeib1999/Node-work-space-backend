@@ -65,7 +65,15 @@ const updateAdminUserValidationSchema = Joi.object({
         .messages({
             "number.base": "Daily rate must be a number.",
             "number.min": "Daily rate must be a positive number.",
-        })
+        }),
+    password: Joi.string()
+        .min(8)
+        .optional()
+        .messages({
+        "string.empty": "Password is required.",
+        "string.min": "Password must be at least 8 characters long.",
+    }),
+
 });
 
 const updateAdminUserPasswordValidationSchema = Joi.object({

@@ -11,10 +11,14 @@ class TreasuryService {
 
             const balanceAfterTransaction =
                 lastTransaction ? parseFloat(lastTransaction.balanceAfterTransaction) : 0;
+
             const cashInMachineBefore =
                 lastTransaction ? parseFloat(lastTransaction.cashInMachineAfter) : 0;
+            const visaInMachineBefore =
+                lastTransaction ? parseFloat(lastTransaction.visaInMachineAfter) : 0;
 
             let cashInMachineAfter = cashInMachineBefore;
+            let visaInMachineAfter = visaInMachineBefore;
 
             // If the payment method is cash, update the cash in machine
             if (data.paymentMethod === 'cash') {
@@ -24,6 +28,16 @@ class TreasuryService {
                     cashInMachineAfter -= parseFloat(data.amount);
                 }
             }
+
+            if (data.paymentMethod === 'visa') {
+                if (data.transactionType === 'income') {
+                    visaInMachineAfter += parseFloat(data.amount);
+                } else if (data.transactionType === 'expense') {
+                    visaInMachineAfter -= parseFloat(data.amount);
+                }
+            }
+
+
 
             const isIncome = data.transactionType === 'income';
             const amount = isIncome ? -data.amount : data.amount;
@@ -47,6 +61,8 @@ class TreasuryService {
                     balanceAfterTransaction: newBalance,
                     cashInMachineBefore,
                     cashInMachineAfter,
+                    visaInMachineBefore,
+                    visaInMachineAfter
                 },
             );
 
@@ -75,90 +91,71 @@ class TreasuryService {
 
 
 
-    async depositCash(amount) {
-        // Get the last transaction to fetch the current cash in the machine
+    async depositCash(amount, paymentMethod) {
+        // Get the last transaction to fetch the current balance
         const lastTransaction = await TreasuryRepository.getLastTransaction();
 
-        if (lastTransaction) {
-            // Update the cash in machine after deposit
-            const updatedCashInMachine = parseFloat(lastTransaction.cashInMachineAfter) + parseFloat(amount);
+        let updatedCashInMachine = lastTransaction ? parseFloat(lastTransaction.cashInMachineAfter) : 0;
+        let updatedVisaInMachine = lastTransaction ? parseFloat(lastTransaction.visaInMachineAfter) : 0;
 
-            // Create the transaction data for deposit (balance remains unchanged)
-            const transactionData = {
-                transactionType: 'income',
-                specificType: 'cash deposit',
-                paymentMethod : "cash",
-                amount: amount,
-                cashInMachineBefore: lastTransaction.cashInMachineAfter,
-                cashInMachineAfter: updatedCashInMachine,
-                balanceAfterTransaction: lastTransaction.balanceAfterTransaction // Balance does not change
-            };
-
-            // Save the deposit transaction
-            return await TreasuryRepository.createTransaction(transactionData);
+        if (paymentMethod === "cash") {
+            updatedCashInMachine += parseFloat(amount);
+        } else if (paymentMethod === "visa") {
+            updatedVisaInMachine += parseFloat(amount);
         } else {
-
-            // Handle the case when there is no previous transaction (first deposit)
-            const transactionData = {
-                transactionType: 'income',
-                specificType: 'cash deposit',
-                paymentMethod : "cash",
-                amount: amount,
-                cashInMachineBefore: 0,
-                cashInMachineAfter: amount,
-                balanceAfterTransaction: 0 // No balance change
-            };
-
-            // Save the first deposit transaction
-            return await TreasuryRepository.createTransaction(transactionData);
+            throw new Error("Invalid payment method. Allowed methods: cash, visa.");
         }
+
+        const transactionData = {
+            transactionType: "income",
+            specificType: "cash deposit",
+            paymentMethod,
+            amount,
+            cashInMachineBefore: lastTransaction ? lastTransaction.cashInMachineAfter : 0,
+            cashInMachineAfter: updatedCashInMachine,
+            visaInMachineBefore: lastTransaction ? lastTransaction.visaInMachineAfter : 0,
+            visaInMachineAfter: updatedVisaInMachine,
+            balanceAfterTransaction: lastTransaction ? lastTransaction.balanceAfterTransaction : 0,
+        };
+
+        return await TreasuryRepository.createTransaction(transactionData);
     }
 
-    async withdrawCash(amount) {
-        // Get the last transaction to fetch the current cash in the machine
+    async withdrawCash(amount, paymentMethod) {
+        // Get the last transaction
         const lastTransaction = await TreasuryRepository.getLastTransaction();
 
-        if (lastTransaction) {
-            // Ensure there is enough cash in the machine to withdraw
-            const cashInMachineBeforeWithdrawal = parseFloat(lastTransaction.cashInMachineAfter);
-            if (cashInMachineBeforeWithdrawal >= parseFloat(amount)) {
-                // Update the cash in machine after withdrawal
-                const updatedCashInMachine = cashInMachineBeforeWithdrawal - parseFloat(amount);
+        let cashInMachineBefore = lastTransaction ? parseFloat(lastTransaction.cashInMachineAfter) : 0;
+        let visaInMachineBefore = lastTransaction ? parseFloat(lastTransaction.visaInMachineAfter) : 0;
 
-                // Create the transaction data for withdrawal (balance remains unchanged)
-                const transactionData = {
-                    transactionType: 'expense',
-                    specificType: 'cash withdrawal',
-                    paymentMethod : "cash",
-                    amount: amount,
-                    cashInMachineBefore: lastTransaction.cashInMachineAfter,
-                    cashInMachineAfter: updatedCashInMachine,
-                    balanceAfterTransaction: lastTransaction.balanceAfterTransaction // Balance does not change
-                };
-
-                // Save the withdrawal transaction
-                return await TreasuryRepository.createTransaction(transactionData);
-            } else {
-                // If there isn't enough cash in the machine, throw an error
-                throw new Error('Insufficient funds in the machine to complete the withdrawal.');
+        if (paymentMethod === "cash") {
+            if (cashInMachineBefore < parseFloat(amount)) {
+                throw new Error("Insufficient cash balance for withdrawal.");
             }
+            cashInMachineBefore -= parseFloat(amount);
+        } else if (paymentMethod === "visa") {
+            if (visaInMachineBefore < parseFloat(amount)) {
+                throw new Error("Insufficient Visa balance for withdrawal.");
+            }
+            visaInMachineBefore -= parseFloat(amount);
         } else {
-            // Handle the case when there is no previous transaction (first withdrawal)
-            const transactionData = {
-                transactionType: 'expense',
-                specificType: 'cash withdrawal',
-                amount: amount,
-                cashInMachineBefore: 0,
-                cashInMachineAfter: -amount, // Withdrawal starts negative
-                balanceAfterTransaction: 0 // No balance change
-            };
-
-            // Save the first withdrawal transaction
-            return await TreasuryRepository.createTransaction(transactionData);
+            throw new Error("Invalid payment method. Allowed methods: cash, visa.");
         }
+
+        const transactionData = {
+            transactionType: "expense",
+            specificType: "cash withdrawal",
+            paymentMethod,
+            amount,
+            cashInMachineBefore: lastTransaction ? lastTransaction.cashInMachineAfter : 0,
+            cashInMachineAfter: cashInMachineBefore,
+            visaInMachineBefore: lastTransaction ? lastTransaction.visaInMachineAfter : 0,
+            visaInMachineAfter: visaInMachineBefore,
+            balanceAfterTransaction: lastTransaction ? lastTransaction.balanceAfterTransaction : 0,
+        };
+
+        return await TreasuryRepository.createTransaction(transactionData);
     }
-
-
 
     async getCashAndTodayVisaIncome() {
         try {
@@ -172,26 +169,22 @@ class TreasuryService {
 
             // Ensure valid cash in machine data
             const cashInMachine = lastTransaction ? parseFloat(lastTransaction.cashInMachineAfter) : 0;
+            const visaInMachine = lastTransaction ? parseFloat(lastTransaction.visaInMachineAfter) : 0;
 
             if (isNaN(cashInMachine)) {
                 throw new Error('Invalid cash_in_machine_after value');
             }
 
-            // Fetch today's total visa income
-            const today = new Date().toISOString().split('T')[0];
-            const todayVisaIncome = await Treasury.sum('amount', {
-                where: {
-                    transaction_type: 'income',
-                    payment_method: 'visa',
-                    date: today,
-                },
-            });
+            if (isNaN(visaInMachine)) {
+                throw new Error('Invalid visa_in_machine_after value');
+            }
 
-            const total = cashInMachine + (todayVisaIncome || 0);
+
+            const total = cashInMachine + visaInMachine;
 
             return {
                 cashInMachine,
-                todayVisaIncome: todayVisaIncome || 0,
+                todayVisaIncome: visaInMachine,
                 total,
             };
         } catch (error) {
@@ -233,8 +226,6 @@ class TreasuryService {
             throw new Error(`Failed to fetch today's incomes, expenses, and profit: ${error.message}`);
         }
     }
-
-
 
     async createTimerTransaction(amount,paymentMethod){
         await this.createTransaction({

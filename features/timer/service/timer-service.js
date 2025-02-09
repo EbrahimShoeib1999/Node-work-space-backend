@@ -82,9 +82,23 @@ class TimerService {
     const timer = await TimerRepository.findById(timerId);
     if (!timer) throw new Error("Timer not found.");
 
+    if (![TimerStatuses.ACTIVE, TimerStatuses.PAUSED].includes(timer.timerStatus)) {
+      throw new Error("Timer can only be ended if it is ACTIVE or PAUSED.");
+    }
+
+    const now = new Date();
+    let activeDuration = 0;
+
+    if (timer.timerStatus === TimerStatuses.ACTIVE) {
+      activeDuration = Math.floor((now - timer.startTime) / 1000); // Duration in seconds
+    }
+
+    const totalActiveTime = timer.totalActiveTime + activeDuration;
+    const totalPrice = (totalActiveTime / 3600) * timer.hourlyRate;
+
     return {
-      totalActiveTime: timer.totalActiveTime,
-      totalPrice: timer.totalPrice,
+      totalActiveTime: totalActiveTime,
+      totalPrice: totalPrice,
     };
   }
 
@@ -106,11 +120,15 @@ class TimerService {
       throw new Error("Payment has already been made.");
     }
 
+    await this.endTimer(timerId,userId)
+
     const updatedTimer = await TimerRepository.updatePaymentStatus(timerId, PaymentStatuses.PAID);
 
     await TreasuryService.createTimerTransaction(updatedTimer.totalPrice,paymentMethod)
 
     await HistoryService.createHistory(userId,"SESSION_PAID","timer has been paid");
+
+
 
     return updatedTimer
   }

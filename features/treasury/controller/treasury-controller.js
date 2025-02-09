@@ -106,9 +106,9 @@ class TreasuryController {
             let transaction;
 
             if (data.specificType === "cash deposit") {
-                transaction = await TreasuryService.depositCash(data.amount);
+                transaction = await TreasuryService.depositCash(data.amount,data.paymentMethod);
             } else if (data.specificType === "cash withdrawal") {
-                transaction = await TreasuryService.withdrawCash(data.amount);
+                transaction = await TreasuryService.withdrawCash(data.amount,data.paymentMethod);
             }
 
             ResponseUtils.success(res, "Transaction completed successfully.",transaction);

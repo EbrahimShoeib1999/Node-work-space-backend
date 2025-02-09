@@ -104,6 +104,8 @@ class InventoryService {
     return await InventoryRepository.deleteInventoryItem(id);
   }
 
+
+
 }
 
 module.exports = new InventoryService();

@@ -70,6 +70,18 @@ Treasury.init(
             allowNull: false,
             comment: 'Cash available in the cashier machine after the transaction',
         },
+        visaInMachineBefore: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false,
+            defaultValue: 0,
+            comment: 'visa available in the cashier machine before the transaction',
+        },
+        visaInMachineAfter: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false,
+            comment: 'visa available in the cashier machine after the transaction',
+        },
+
         paymentMethod: {
             type: DataTypes.ENUM('cash', 'visa'),
             allowNull: false,

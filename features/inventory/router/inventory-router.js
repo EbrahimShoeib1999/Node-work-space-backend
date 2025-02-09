@@ -1,8 +1,10 @@
 const express = require('express');
 const InventoryController = require('../controller/inventory-controller');
 const {validateRoles} = require("../../../core/verify-token");
-
+const { exportInventoryToExcel } = require('../utils/inventory-to-excel');
 const router = express.Router();
+
+router.get('/export', exportInventoryToExcel);
 
 // Create a new inventory item
 router.post('/',validateRoles(["ADMIN","CASHIER","MANAGER"]), InventoryController.createInventoryItem);
@@ -21,5 +23,7 @@ router.get('/:id',validateRoles(["ADMIN","CASHIER","MANAGER","CHIEF"]), Inventor
 
 // Delete an inventory item by ID
 router.delete('/:id',validateRoles(["ADMIN","CASHIER","MANAGER"]), InventoryController.deleteInventoryItem);
+
+
 
 module.exports = router;

@@ -71,10 +71,16 @@ const cashMachineValidationSchema = Joi.object({
         .precision(2)
         .required()
     ,
+    paymentMethod : Joi.string()
+        .valid(
+            "cash",
+            "visa"
+        )
+        .required()
+    ,
     description: Joi.string()
         .max(255)
-        .optional()
-
+        .optional(),
 });
 
 
