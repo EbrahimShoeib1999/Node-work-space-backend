@@ -66,7 +66,15 @@ class TimerService {
     }
 
     const totalActiveTime = timer.totalActiveTime + activeDuration;
-    const totalPrice = (totalActiveTime / 3600) * timer.hourlyRate;
+    let totalPrice = (totalActiveTime / 3600) * timer.hourlyRate;
+
+    // Rounding Logic
+    if (totalPrice <= 5) {
+      totalPrice = 5;
+    } else {
+      totalPrice = Math.ceil(totalPrice / 5) * 5; // Round to the nearest multiple of 5
+    }
+
 
     await HistoryService.createHistory(userId,"SESSION_ENDED","timer has ended");
 
@@ -94,7 +102,14 @@ class TimerService {
     }
 
     const totalActiveTime = timer.totalActiveTime + activeDuration;
-    const totalPrice = (totalActiveTime / 3600) * timer.hourlyRate;
+    let totalPrice = (totalActiveTime / 3600) * timer.hourlyRate;
+
+    if (totalPrice <= 5) {
+      totalPrice = 5;
+    } else {
+      totalPrice = Math.ceil(totalPrice / 5) * 5; // Round to the nearest multiple of 5
+    }
+
 
     return {
       totalActiveTime: totalActiveTime,
