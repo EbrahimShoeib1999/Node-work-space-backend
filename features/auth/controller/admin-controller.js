@@ -5,7 +5,6 @@ const { date } = require("joi");
 const ApiErrorCode = require("../../../core/api-error")
 const {adminUserValidationSchema,updateAdminUserProfileValidationSchema,updateAdminUserPasswordValidationSchema,adminUserLoginValidationSchema,updateAdminUserValidationSchema} = require("../utils/admin-validation")
 
-
 class AdminUserController {
 
   async login(req, res) {
